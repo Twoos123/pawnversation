@@ -12,6 +12,7 @@ interface VoiceInputProps {
 const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const RECORDING_DURATION = 2000; // 2 seconds in milliseconds
 
   useEffect(() => {
     // Start recording when it's player's turn (disabled = false)
@@ -51,6 +52,10 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
             const [_, from, to] = match;
             setIsRecording(false); // Stop recording when valid move is detected
             onMove(from.toLowerCase(), to.toLowerCase());
+          } else {
+            console.log("No valid move found, restarting recording");
+            // Start a new recording cycle if no valid move was found
+            startRecording();
           }
         } catch (error) {
           console.error("Error processing voice command:", error);
@@ -65,6 +70,16 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
       setIsRecording(true);
       console.log("Started recording");
       toast.info("Listening for your move...");
+
+      // Stop recording after RECORDING_DURATION
+      setTimeout(() => {
+        if (recorder.state === 'recording') {
+          console.log("2-second timer completed, stopping recording");
+          recorder.stop();
+          recorder.stream.getTracks().forEach(track => track.stop());
+        }
+      }, RECORDING_DURATION);
+
     } catch (error) {
       console.error("Error accessing microphone:", error);
       toast.error("Could not access microphone. Please check permissions.");
