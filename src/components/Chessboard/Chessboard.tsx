@@ -13,24 +13,30 @@ const Chessboard = () => {
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const [capturedPieces, setCapturedPieces] = useState({ w: [], b: [] });
   const [isThinking, setIsThinking] = useState(false);
-
+  
   const makeAIMove = () => {
     setIsThinking(true);
+    console.log("AI is thinking...");
+    
     setTimeout(() => {
-      const moves = game.moves({ verbose: true });
-      if (moves.length > 0) {
-        // Example: prioritize captures
-        const captureMoves = moves.filter(move => move.captured);
-        const move = captureMoves.length > 0
-          ? captureMoves[Math.floor(Math.random() * captureMoves.length)]
-          : moves[Math.floor(Math.random() * moves.length)];
-        handleMove(move.from, move.to);
-        playMoveSound();
+      try {
+        const moves = game.moves({ verbose: true });
+        if (moves.length > 0) {
+          const move = moves[Math.floor(Math.random() * moves.length)];
+          handleMove(move.from, move.to);
+  
+          // Announce the AI's move
+          playMoveSpeech(move.from, move.to);
+        }
+      } catch (error) {
+        console.error("AI move error:", error);
+        toast.error("AI encountered an error");
+      } finally {
+        setIsThinking(false);
       }
-      setIsThinking(false);
     }, 500);
   };
-
+  
   const handleMove = (from: string, to: string) => {
     try {
       const move = game.move({
@@ -38,7 +44,7 @@ const Chessboard = () => {
         to: to as Square,
         promotion: 'q',
       });
-
+      
       if (move) {
         const newGame = new Chess(game.fen());
         setGame(newGame);
@@ -46,7 +52,10 @@ const Chessboard = () => {
         // Update move history
         setMoveHistory(prev => [...prev, `${from}-${to}`]);
         
-        // Check for captured pieces
+        // Announce the move
+        playMoveSpeech(from, to);
+        
+        // Additional logic for captured pieces, AI move, etc.
         if (move.captured) {
           const capturedPiece = move.captured;
           const capturedColor = move.color === 'w' ? 'b' : 'w';
@@ -54,11 +63,9 @@ const Chessboard = () => {
             ...prev,
             [capturedColor]: [...prev[capturedColor], capturedPiece]
           }));
-          
           toast.success(`Captured ${capturedColor === 'w' ? 'White' : 'Black'}'s ${capturedPiece}`);
         }
-
-        // Check game status
+        
         if (newGame.isCheckmate()) {
           toast.success(`Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`);
         } else if (newGame.isDraw()) {
@@ -66,7 +73,7 @@ const Chessboard = () => {
         } else if (newGame.isCheck()) {
           toast.warning("Check!");
         }
-
+        
         // If it was a player move (white), trigger AI move
         if (move.color === 'w' && !newGame.isGameOver()) {
           makeAIMove();
@@ -77,67 +84,82 @@ const Chessboard = () => {
       toast.error("Invalid move!");
     }
   };
-
+  
   // Add the makeMove function for programmatic moves
   const makeMove = (from: string, to: string) => {
     handleMove(from, to);
   };
-
+  
   const renderSquare = (i: number, j: number) => {
     const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
     const piece = game.get(position);
     const isBlack = (i + j) % 2 === 1;
-
+    
     return (
       <SquareComponent key={position} black={isBlack} position={position} onDrop={handleMove}>
-        {piece ? <Piece type={piece.type} color={piece.color} position={position} /> : null}
+      {piece ? <Piece type={piece.type} color={piece.color} position={position} /> : null}
       </SquareComponent>
     );
   };
-
+  
   const renderCapturedPieces = (color: 'w' | 'b') => (
     <div className="flex flex-wrap gap-1 p-2">
-      {capturedPieces[color].map((piece, i) => (
-        <img 
-          key={i}
-          src={`/${color}${piece}.svg`} 
-          alt={`captured ${piece}`}
-          className="w-6 h-6 opacity-75"
-        />
-      ))}
+    {capturedPieces[color].map((piece, i) => (
+      <img 
+      key={i}
+      src={`/${color}${piece}.svg`} 
+      alt={`captured ${piece}`}
+      className="w-6 h-6 opacity-75"
+      />
+    ))}
     </div>
   );
-
+  
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-col md:flex-row items-start gap-8 p-8">
-        <div className="space-y-4">
-          {isThinking && (
-            <div className="text-center text-gray-600 animate-pulse">
-              AI is thinking...
-            </div>
-          )}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm mb-2">Captured by Black:</div>
-            {renderCapturedPieces('w')}
-          </div>
-          
-          <div className="grid grid-cols-8 rounded-lg overflow-hidden shadow-xl">
-            {Array(8).fill(null).map((_, j) => (
-              Array(8).fill(null).map((_, i) => renderSquare(i, j))
-            ))}
-          </div>
-          
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm mb-2">Captured by White:</div>
-            {renderCapturedPieces('b')}
-          </div>
-        </div>
-        
-        <MoveHistory moves={moveHistory} />
+    <div className="flex flex-col md:flex-row items-start gap-8 p-8">
+    <div className="space-y-4">
+    {isThinking && (
+      <div className="text-center text-gray-600 animate-pulse">
+      AI is thinking...
       </div>
+    )}
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+    <div className="text-sm mb-2">Captured by Black:</div>
+    {renderCapturedPieces('w')}
+    </div>
+    
+    <div className="grid grid-cols-8 rounded-lg overflow-hidden shadow-xl">
+    {Array(8).fill(null).map((_, j) => (
+      Array(8).fill(null).map((_, i) => renderSquare(i, j))
+    ))}
+    </div>
+    
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+    <div className="text-sm mb-2">Captured by White:</div>
+    {renderCapturedPieces('b')}
+    </div>
+    </div>
+    
+    <MoveHistory moves={moveHistory} />
+    </div>
     </DndProvider>
   );
+};
+
+export const playMoveSpeech = (from, to) => {
+  if (!window.speechSynthesis) {
+    console.error("Speech synthesis not supported in this browser.");
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(`Moved from ${from} to ${to}`);
+  utterance.lang = "en-US"; // Set the language
+  utterance.rate = 1; // Speed of speech (0.1 to 10, 1 is normal)
+  utterance.pitch = 1; // Pitch (0 to 2, 1 is normal)
+  utterance.volume = 1; // Volume (0 to 1)
+
+  window.speechSynthesis.speak(utterance);
 };
 
 export default Chessboard;
