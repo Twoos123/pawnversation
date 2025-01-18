@@ -5,6 +5,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { default as SquareComponent } from './Square';
 import Piece from './Piece';
 import MoveHistory from './MoveHistory';
+import VoiceInput from './VoiceInput';
 import { toast } from 'sonner';
 import { playMoveSpeech } from '@/utils/audio';
 import { wait } from '@/utils/timeUtils';
@@ -18,6 +19,11 @@ const Chessboard = () => {
   const [capturedPieces, setCapturedPieces] = useState({ w: [], b: [] });
   const [isThinking, setIsThinking] = useState(false);
   const [gameStatus, setGameStatus] = useState<'initial' | 'playing' | 'checkmate' | 'draw'>('initial');
+
+  const handleVoiceMove = (from: string, to: string) => {
+    console.log("Voice move received:", from, "to", to);
+    handleMove(from, to);
+  };
 
   const makeAIMove = () => {
     setIsThinking(true);
@@ -172,18 +178,24 @@ const Chessboard = () => {
         return null;
     }
   };
-  
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col md:flex-row items-start gap-8 p-8">
         <div className="space-y-4">
           {renderGameStatus()}
           
-          {isThinking && (
-            <div className="text-center text-gray-600 animate-pulse">
-              AI is thinking...
-            </div>
-          )}
+          <div className="flex justify-between items-center mb-4">
+            {isThinking && (
+              <div className="text-center text-gray-600 animate-pulse">
+                AI is thinking...
+              </div>
+            )}
+            <VoiceInput 
+              onMove={handleVoiceMove} 
+              disabled={isThinking || game.turn() !== 'w' || game.isGameOver()}
+            />
+          </div>
           
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
             <div className="text-sm mb-2">Captured by Black:</div>
