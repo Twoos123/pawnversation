@@ -6,6 +6,7 @@ import { default as SquareComponent } from './Square';
 import Piece from './Piece';
 import MoveHistory from './MoveHistory';
 import { toast } from 'sonner';
+import { playMoveSound } from '@/utils/audio';
 
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
@@ -25,6 +26,8 @@ const Chessboard = () => {
           // Choose a random legal move
           const move = moves[Math.floor(Math.random() * moves.length)];
           handleMove(move.from, move.to);
+          // Play sound when AI makes a move
+          playMoveSound();
         }
       } catch (error) {
         console.error("AI move error:", error);
