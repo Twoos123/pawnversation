@@ -10,6 +10,7 @@ export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
     console.log("Processing voice command with Groq...");
     
     const text = await convertAudioToText(audioBlob);
+
     console.log("Converted speech to text:", text);
 
     if (!text) {
@@ -44,6 +45,8 @@ const convertAudioToText = (audioBlob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     try {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      console.log("----------")
+      console.log(SpeechRecognition)
       if (!SpeechRecognition) {
         throw new Error("Speech recognition is not supported in this browser");
       }
