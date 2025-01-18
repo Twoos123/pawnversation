@@ -56,6 +56,9 @@ const Chessboard = () => {
         if (gameStatus === 'initial') {
           setGameStatus('playing');
         }
+
+        // Announce the move
+        playMoveSpeech(from, to);
   
         // Handle captured pieces
         if (move.captured) {
@@ -67,6 +70,7 @@ const Chessboard = () => {
           }));
 
           const color=(capturedColor==='w' ? 'White\'s ' : 'Black\'s ');
+          toast.success(capturedPiece);
 
           const successMessage= "Captured "+color+ capturedPiece;
           
@@ -93,8 +97,7 @@ const Chessboard = () => {
           makeAIMove();
         }
 
-        // Announce the move
-        playMoveSpeech(from, to);
+        
       }
     } catch (error) {
       console.error("Move error:", error);
