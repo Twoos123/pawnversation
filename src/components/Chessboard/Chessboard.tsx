@@ -11,6 +11,29 @@ const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const [capturedPieces, setCapturedPieces] = useState({ w: [], b: [] });
+  const [isThinking, setIsThinking] = useState(false);
+
+  const makeAIMove = () => {
+    setIsThinking(true);
+    console.log("AI is thinking...");
+    
+    // Small delay to make the AI move feel more natural
+    setTimeout(() => {
+      try {
+        const moves = game.moves({ verbose: true });
+        if (moves.length > 0) {
+          // Choose a random legal move
+          const move = moves[Math.floor(Math.random() * moves.length)];
+          handleMove(move.from, move.to);
+        }
+      } catch (error) {
+        console.error("AI move error:", error);
+        toast.error("AI encountered an error");
+      } finally {
+        setIsThinking(false);
+      }
+    }, 500);
+  };
 
   const handleMove = (from: string, to: string) => {
     try {
@@ -47,13 +70,19 @@ const Chessboard = () => {
         } else if (newGame.isCheck()) {
           toast.warning("Check!");
         }
+
+        // If it was a player move (white), trigger AI move
+        if (move.color === 'w' && !newGame.isGameOver()) {
+          makeAIMove();
+        }
       }
     } catch (error) {
+      console.error("Move error:", error);
       toast.error("Invalid move!");
     }
   };
 
-  // Add the makeMove function here
+  // Add the makeMove function for programmatic moves
   const makeMove = (from: string, to: string) => {
     handleMove(from, to);
   };
@@ -87,6 +116,11 @@ const Chessboard = () => {
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col md:flex-row items-start gap-8 p-8">
         <div className="space-y-4">
+          {isThinking && (
+            <div className="text-center text-gray-600 animate-pulse">
+              AI is thinking...
+            </div>
+          )}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
             <div className="text-sm mb-2">Captured by Black:</div>
             {renderCapturedPieces('w')}
