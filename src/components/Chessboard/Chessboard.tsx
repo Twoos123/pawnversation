@@ -53,6 +53,11 @@ const Chessboard = () => {
     }
   };
 
+  // Add the makeMove function here
+  const makeMove = (from: string, to: string) => {
+    handleMove(from, to);
+  };
+
   const renderSquare = (i: number, j: number) => {
     const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
     const piece = game.get(position);
