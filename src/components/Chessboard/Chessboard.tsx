@@ -21,12 +21,13 @@ const Chessboard = () => {
   
     // Simulate AI thinking delay
     // Add a small timer before announcing
-    wait(2000)
+    
     setTimeout(() => {
       try {
         const moves = game.moves({ verbose: true });
         if (moves.length > 0) {
           const move = moves[Math.floor(Math.random() * moves.length)];
+          wait(2000)
           handleMove(move.from, move.to);
         }
       } catch (error) {
