@@ -65,6 +65,7 @@ const Chessboard = () => {
             ...prev,
             [capturedColor]: [...prev[capturedColor], capturedPiece],
           }));
+          playMoveSpeech("","",`Captured ${capturedColor === 'w' ? 'White' : 'Black'}'s ${capturedPiece}`);
           toast.success(`Captured ${capturedColor === 'w' ? 'White' : 'Black'}'s ${capturedPiece}`);
         }
   
