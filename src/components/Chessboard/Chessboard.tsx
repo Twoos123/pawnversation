@@ -48,11 +48,6 @@ const Chessboard = () => {
         const newGame = new Chess(game.fen());
         setGame(newGame);
   
-        // Announce the move
-        // Add a small timer before announcing
-        wait(2000)
-        playMoveSpeech(from, to);
-  
         // Update move history
         setMoveHistory(prev => [...prev, `${from}-${to}`]);
   
@@ -80,6 +75,13 @@ const Chessboard = () => {
         if (move.color === 'w' && !newGame.isGameOver()) {
           makeAIMove();
         }
+
+
+        // Announce the move
+        // Add a small timer before announcing
+        wait(2000)
+        playMoveSpeech(from, to);
+        
       }
     } catch (error) {
       console.error("Move error:", error);
