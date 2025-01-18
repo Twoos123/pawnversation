@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import { processVoiceCommand } from '@/utils/groqUtils';
+import { playMoveSpeech } from '@/utils/audio';
 
 interface VoiceInputProps {
   onMove: (from: string, to: string) => void;
@@ -35,10 +36,12 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
             const [_, from, to] = match;
             onMove(from.toLowerCase(), to.toLowerCase());
           } else {
+            playMoveSpeech("","","Could not understand the move. Please try again.");
             toast.error("Could not understand the move. Please try again.");
           }
         } catch (error) {
           console.error("Error processing voice command:", error);
+          playMoveSpeech("","","Failed to process voice command. Please try again.");
           toast.error("Failed to process voice command. Please try again.");
         }
       };
