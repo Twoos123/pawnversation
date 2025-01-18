@@ -66,9 +66,7 @@ const Chessboard = () => {
             [capturedColor]: [...prev[capturedColor], capturedPiece],
           }));
 
-          const color = capturedColor == "w" ? "White's" : "Black's";
-
-          const successMessage = "Captured "+capturedColor+ " "+capturedPiece;
+          const successMessage= "Captured "+(capturedColor==='w' ? 'White\'s' : 'Black\'s')+ capturedPiece;
           
           toast.success(successMessage);
 
