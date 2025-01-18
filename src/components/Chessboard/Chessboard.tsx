@@ -57,6 +57,12 @@ const Chessboard = () => {
   const makeMove = (from: string, to: string) => {
     handleMove(from, to);
   };
+  
+  // Usage examples:
+  makeMove("e2", "e4"); // Move white pawn forward two squares
+  makeMove("e7", "e5"); // Move black pawn forward two squares
+  makeMove("f1", "c4"); // Move white bishop to c4
+  
 
   const renderSquare = (i: number, j: number) => {
     const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
