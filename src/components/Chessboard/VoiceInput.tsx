@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import { processVoiceCommand } from '@/utils/groqUtils';
+import { wait } from '@/utils/timeUtils';
+import { playMoveSpeech } from '@/utils/audio';
 
 interface VoiceInputProps {
   onMove: (from: string, to: string) => void;
@@ -15,6 +17,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   const RECORDING_DURATION = 3000; // 3 seconds in milliseconds
 
   useEffect(() => {
+    wait(2000);
+    playMoveSpeech("","","Please tell us your next move");
     // Start recording when it's player's turn (disabled = false)
     if (!disabled && !isRecording) {
       console.log("Player's turn - starting microphone");
