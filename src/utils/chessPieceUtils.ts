@@ -1,11 +1,11 @@
 export const getPieceName = (piece: string): string => {
   const pieceMap: { [key: string]: string } = {
-    'p': 'pawn',
-    'n': 'knight',
-    'b': 'bishop',
-    'r': 'rook',
-    'q': 'queen',
-    'k': 'king'
+    'p': 'Pawn',
+    'n': 'Knight',
+    'b': 'Bishop',
+    'r': 'Rook',
+    'q': 'Queen',
+    'k': 'King'
   };
   
   return pieceMap[piece] || piece;
