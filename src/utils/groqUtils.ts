@@ -9,25 +9,19 @@ export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
   try {
     console.log("Processing voice command with Groq...");
     
-    // Convert audio blob to base64
-    const reader = new FileReader();
-    const base64Audio = await new Promise<string>((resolve) => {
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        resolve(base64.split(',')[1]);
-      };
-      reader.readAsDataURL(audioBlob);
-    });
+    // First, convert the audio to text using the Web Speech API
+    const text = await convertAudioToText(audioBlob);
+    console.log("Converted speech to text:", text);
 
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "You are a chess move interpreter. Convert spoken chess moves like 'a2 to a4' into standard chess notation."
+          content: "You are a chess move interpreter. Convert spoken chess moves into standard chess notation. Only respond with the move in the format 'a2 to a4' or similar. If you can't understand the move, respond with 'Invalid move'."
         },
         {
           role: "user",
-          content: `Process this chess move command: ${base64Audio}`
+          content: `Interpret this chess move: ${text}`
         }
       ],
       model: "mixtral-8x7b-32768",
@@ -41,4 +35,31 @@ export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
     console.error("Error processing voice command:", error);
     throw new Error("Failed to process voice command");
   }
-}
+};
+
+const convertAudioToText = (audioBlob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript;
+      resolve(text);
+    };
+
+    recognition.onerror = (event) => {
+      reject(new Error(`Speech recognition error: ${event.error}`));
+    };
+
+    // Convert Blob to audio and play it through recognition
+    const audio = new Audio(URL.createObjectURL(audioBlob));
+    audio.addEventListener('ended', () => {
+      recognition.stop();
+    });
+
+    recognition.start();
+    audio.play();
+  });
+};
