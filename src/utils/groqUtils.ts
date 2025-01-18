@@ -1,16 +1,26 @@
 import { Groq } from "groq-sdk";
+import { validateAudioFile } from "./audioUtils";
+import { extractChessMove } from "./voiceCommandUtils";
 
 const groq = new Groq({
   apiKey: "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",
   dangerouslyAllowBrowser: true
 });
 
+/**
+ * Processes voice command using Groq API
+ */
 export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
   try {
     console.log("Processing voice command with Groq...");
     
     // Convert Blob to File
     const file = new File([audioBlob], "recording.webm", { type: "audio/webm" });
+    
+    // Validate audio file
+    if (!validateAudioFile(file)) {
+      throw new Error("Invalid audio file format or size");
+    }
     
     // Create a transcription job
     const transcription = await groq.audio.transcriptions.create({
@@ -27,17 +37,4 @@ export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
     console.error("Error processing voice command:", error);
     throw new Error("Failed to process voice command");
   }
-};
-
-// Helper function to convert audio blob to base64
-const blobToBase64 = (blob: Blob): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      resolve(base64String.split(',')[1]); // Remove data URL prefix
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 };
