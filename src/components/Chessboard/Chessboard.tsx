@@ -66,7 +66,7 @@ const Chessboard = () => {
             [capturedColor]: [...prev[capturedColor], capturedPiece],
           }));
 
-          const successMessage= "Captured "+(capturedColor==='w' ? 'White\'s' : 'Black\'s')+ capturedPiece;
+          const successMessage= "Captured "+(capturedColor==='w' ? 'White\'s ' : 'Black\'s ')+ capturedPiece;
           
           toast.success(successMessage);
 
@@ -94,6 +94,7 @@ const Chessboard = () => {
       }
     } catch (error) {
       console.error("Move error:", error);
+      playMoveSpeech("","","This was an invalid move");
       toast.error("Invalid move!");
     }
   };
