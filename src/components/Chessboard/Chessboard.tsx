@@ -6,18 +6,19 @@ import { default as SquareComponent } from './Square';
 import Piece from './Piece';
 import MoveHistory from './MoveHistory';
 import { toast } from 'sonner';
-import { playMoveSound } from '@/utils/audio';
+import { playMoveSpeech } from '@/utils/audio';
 
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const [capturedPieces, setCapturedPieces] = useState({ w: [], b: [] });
   const [isThinking, setIsThinking] = useState(false);
-  
+
   const makeAIMove = () => {
     setIsThinking(true);
     console.log("AI is thinking...");
-    
+  
+    // Simulate AI thinking delay
     setTimeout(() => {
       try {
         const moves = game.moves({ verbose: true });
@@ -30,11 +31,11 @@ const Chessboard = () => {
         }
       } catch (error) {
         console.error("AI move error:", error);
-        toast.error("AI encountered an error");
+        toast.error("AI encountered an error.");
       } finally {
         setIsThinking(false);
       }
-    }, 500);
+    }, 500); // Add a small delay for a natural feel
   };
   
   const handleMove = (from: string, to: string) => {
@@ -42,30 +43,31 @@ const Chessboard = () => {
       const move = game.move({
         from: from as Square,
         to: to as Square,
-        promotion: 'q',
+        promotion: 'q', // Promote to queen by default
       });
-      
+  
       if (move) {
         const newGame = new Chess(game.fen());
         setGame(newGame);
-        
-        // Update move history
-        setMoveHistory(prev => [...prev, `${from}-${to}`]);
-        
+  
         // Announce the move
         playMoveSpeech(from, to);
-        
-        // Additional logic for captured pieces, AI move, etc.
+  
+        // Update move history
+        setMoveHistory(prev => [...prev, `${from}-${to}`]);
+  
+        // Handle captured pieces
         if (move.captured) {
           const capturedPiece = move.captured;
           const capturedColor = move.color === 'w' ? 'b' : 'w';
           setCapturedPieces(prev => ({
             ...prev,
-            [capturedColor]: [...prev[capturedColor], capturedPiece]
+            [capturedColor]: [...prev[capturedColor], capturedPiece],
           }));
           toast.success(`Captured ${capturedColor === 'w' ? 'White' : 'Black'}'s ${capturedPiece}`);
         }
-        
+  
+        // Check game status
         if (newGame.isCheckmate()) {
           toast.success(`Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`);
         } else if (newGame.isDraw()) {
@@ -73,7 +75,7 @@ const Chessboard = () => {
         } else if (newGame.isCheck()) {
           toast.warning("Check!");
         }
-        
+  
         // If it was a player move (white), trigger AI move
         if (move.color === 'w' && !newGame.isGameOver()) {
           makeAIMove();
@@ -84,12 +86,7 @@ const Chessboard = () => {
       toast.error("Invalid move!");
     }
   };
-  
-  // Add the makeMove function for programmatic moves
-  const makeMove = (from: string, to: string) => {
-    handleMove(from, to);
-  };
-  
+
   const renderSquare = (i: number, j: number) => {
     const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
     const piece = game.get(position);
@@ -145,21 +142,6 @@ const Chessboard = () => {
     </div>
     </DndProvider>
   );
-};
-
-export const playMoveSpeech = (from, to) => {
-  if (!window.speechSynthesis) {
-    console.error("Speech synthesis not supported in this browser.");
-    return;
-  }
-
-  const utterance = new SpeechSynthesisUtterance(`Moved from ${from} to ${to}`);
-  utterance.lang = "en-US"; // Set the language
-  utterance.rate = 1; // Speed of speech (0.1 to 10, 1 is normal)
-  utterance.pitch = 1; // Pitch (0 to 2, 1 is normal)
-  utterance.volume = 1; // Volume (0 to 1)
-
-  window.speechSynthesis.speak(utterance);
 };
 
 export default Chessboard;

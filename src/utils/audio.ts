@@ -1,20 +1,15 @@
-export const playMoveSound = () => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  
-  // Create an oscillator for a chess piece movement sound
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-  
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  
-  // Configure the sound
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
-  gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-  
-  // Schedule the sound
-  oscillator.start();
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-  oscillator.stop(audioContext.currentTime + 0.3);
+export const playMoveSpeech = (from: string, to: string, specialMove?: string) => {
+  if (!window.speechSynthesis) {
+    console.error("Speech synthesis is not supported in this browser.");
+    return;
+  }
+
+  const message = specialMove ? specialMove : `Moved from ${from} to ${to}`;
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = "en-US";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  window.speechSynthesis.speak(utterance);
 };
