@@ -105,7 +105,8 @@ const Chessboard = () => {
           setGameStatus('draw');
           toast.info("Game Over - Draw!");
         } else if (newGame.isCheck()) {
-          toast.warning("Check!");
+          playMoveSpeech("","",`Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`);
+          toast.warning(`Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`);
         }
   
         // If it was a player move (white), trigger AI move
