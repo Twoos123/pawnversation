@@ -39,12 +39,13 @@ export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
 
 const convertAudioToText = (audioBlob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition: SpeechRecognition = new SpeechRecognition();
     recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       const text = event.results[0][0].transcript;
       resolve(text);
     };
