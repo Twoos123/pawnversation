@@ -20,6 +20,8 @@ const Chessboard = () => {
     console.log("AI is thinking...");
   
     // Simulate AI thinking delay
+    // Add a small timer before announcing
+    wait(2000)
     setTimeout(() => {
       try {
         const moves = game.moves({ verbose: true });
@@ -78,8 +80,6 @@ const Chessboard = () => {
 
 
         // Announce the move
-        // Add a small timer before announcing
-        wait(2000)
         playMoveSpeech(from, to);
         
       }
