@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Square from './Square';
+import Square as SquareComponent from './Square';
 import Piece from './Piece';
 import MoveHistory from './MoveHistory';
 import { toast } from 'sonner';
@@ -15,8 +15,8 @@ const Chessboard = () => {
   const handleMove = (from: string, to: string) => {
     try {
       const move = game.move({
-        from,
-        to,
+        from: from as Square,
+        to: to as Square,
         promotion: 'q',
       });
 
@@ -54,14 +54,14 @@ const Chessboard = () => {
   };
 
   const renderSquare = (i: number, j: number) => {
-    const position = `${String.fromCharCode(97 + i)}${8 - j}`;
+    const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
     const piece = game.get(position);
     const isBlack = (i + j) % 2 === 1;
 
     return (
-      <Square key={position} black={isBlack} position={position} onDrop={handleMove}>
+      <SquareComponent key={position} black={isBlack} position={position} onDrop={handleMove}>
         {piece ? <Piece type={piece.type} color={piece.color} position={position} /> : null}
-      </Square>
+      </SquareComponent>
     );
   };
 
