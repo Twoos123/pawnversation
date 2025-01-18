@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
@@ -13,8 +13,27 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
+  useEffect(() => {
+    // Start recording when it's player's turn (disabled = false)
+    if (!disabled && !isRecording) {
+      startRecording();
+    }
+    // Stop recording when it's AI's turn (disabled = true)
+    else if (disabled && isRecording) {
+      stopRecording();
+    }
+
+    // Cleanup function
+    return () => {
+      if (mediaRecorder) {
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [disabled]); // Only re-run when disabled prop changes
+
   const startRecording = async () => {
     try {
+      console.log("Starting voice recording...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm'
@@ -54,6 +73,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   };
 
   const stopRecording = () => {
+    console.log("Stopping voice recording...");
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach(track => track.stop());
@@ -66,7 +86,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
       variant="outline"
       size="icon"
       disabled={disabled}
-      onClick={isRecording ? stopRecording : startRecording}
       className={`transition-colors ${isRecording ? 'bg-red-100 hover:bg-red-200' : ''}`}
     >
       {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
