@@ -70,7 +70,7 @@ const Chessboard = () => {
 
           const successMessage= "Captured "+color+ capturedPiece;
           
-          toast.success(successMessage);
+          toast.success(`Captured ${capturedColor === 'w' ? 'White' : 'Black'}'s ${capturedPiece}`);
 
           playMoveSpeech("","",successMessage);
         }
