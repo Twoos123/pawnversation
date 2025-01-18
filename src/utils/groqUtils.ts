@@ -68,9 +68,24 @@ const convertAudioToText = (audioBlob: Blob): Promise<string> => {
         console.error("Speech recognition error:", event.error);
         if (event.error === 'language-not-supported') {
           // If the user's language is not supported, fallback to en-US
-          recognition.lang = 'en-US';
-          console.log("Falling back to en-US language");
-          recognition.start(); // Restart with en-US
+          recognition.stop(); // Stop the current recognition
+          console.log("Stopping current recognition");
+          
+          // Set up a new recognition with en-US
+          const newRecognition = new SpeechRecognition();
+          newRecognition.lang = 'en-US';
+          console.log("Starting new recognition with en-US language");
+          
+          // Copy over the event handlers
+          newRecognition.onresult = recognition.onresult;
+          newRecognition.onerror = (e) => {
+            console.error("Speech recognition error in fallback:", e.error);
+            reject(new Error(`Speech recognition error: ${e.error}`));
+          };
+          newRecognition.onend = recognition.onend;
+          
+          // Start the new recognition
+          newRecognition.start();
           return;
         }
         reject(new Error(`Speech recognition error: ${event.error}`));
