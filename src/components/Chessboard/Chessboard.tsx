@@ -49,7 +49,7 @@ const Chessboard = () => {
   
         // Announce the move
         // Add a small timer before announcing
-        setTimeout(() => {}, 500);
+        setTimeout(() => {}, 1000);
         playMoveSpeech(from, to);
   
         // Update move history
