@@ -7,6 +7,7 @@ import Piece from './Piece';
 import MoveHistory from './MoveHistory';
 import { toast } from 'sonner';
 import { playMoveSpeech } from '@/utils/audio';
+import { wait } from '@/utils/timeUtils';
 
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
@@ -49,7 +50,7 @@ const Chessboard = () => {
   
         // Announce the move
         // Add a small timer before announcing
-        setTimeout(() => {}, 1000);
+        wait(750)
         playMoveSpeech(from, to);
   
         // Update move history
