@@ -12,7 +12,7 @@ interface VoiceInputProps {
 const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const RECORDING_DURATION = 3000; // 2 seconds in milliseconds
+  const RECORDING_DURATION = 3000; // 3 seconds in milliseconds
 
   useEffect(() => {
     // Start recording when it's player's turn (disabled = false)
