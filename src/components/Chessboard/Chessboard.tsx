@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Chess, Square } from 'chess.js';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Square as SquareComponent from './Square';
+import { default as SquareComponent } from './Square';
 import Piece from './Piece';
 import MoveHistory from './MoveHistory';
 import { toast } from 'sonner';
