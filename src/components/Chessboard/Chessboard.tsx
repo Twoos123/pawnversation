@@ -16,25 +16,18 @@ const Chessboard = () => {
 
   const makeAIMove = () => {
     setIsThinking(true);
-    console.log("AI is thinking...");
-    
-    // Small delay to make the AI move feel more natural
     setTimeout(() => {
-      try {
-        const moves = game.moves({ verbose: true });
-        if (moves.length > 0) {
-          // Choose a random legal move
-          const move = moves[Math.floor(Math.random() * moves.length)];
-          handleMove(move.from, move.to);
-          // Play sound when AI makes a move
-          playMoveSound();
-        }
-      } catch (error) {
-        console.error("AI move error:", error);
-        toast.error("AI encountered an error");
-      } finally {
-        setIsThinking(false);
+      const moves = game.moves({ verbose: true });
+      if (moves.length > 0) {
+        // Example: prioritize captures
+        const captureMoves = moves.filter(move => move.captured);
+        const move = captureMoves.length > 0
+          ? captureMoves[Math.floor(Math.random() * captureMoves.length)]
+          : moves[Math.floor(Math.random() * moves.length)];
+        handleMove(move.from, move.to);
+        playMoveSound();
       }
+      setIsThinking(false);
     }, 500);
   };
 
