@@ -25,9 +25,6 @@ const Chessboard = () => {
         if (moves.length > 0) {
           const move = moves[Math.floor(Math.random() * moves.length)];
           handleMove(move.from, move.to);
-  
-          // Announce the AI's move
-          playMoveSpeech(move.from, move.to);
         }
       } catch (error) {
         console.error("AI move error:", error);
@@ -37,7 +34,7 @@ const Chessboard = () => {
       }
     }, 500); // Add a small delay for a natural feel
   };
-  
+
   const handleMove = (from: string, to: string) => {
     try {
       const move = game.move({
@@ -51,6 +48,8 @@ const Chessboard = () => {
         setGame(newGame);
   
         // Announce the move
+        // Add a small timer before announcing
+        setTimeout(() => {}, 500);
         playMoveSpeech(from, to);
   
         // Update move history
