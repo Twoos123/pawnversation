@@ -10,6 +10,7 @@ import { playMoveSpeech } from '@/utils/audio';
 import { wait } from '@/utils/timeUtils';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon, AlertTriangleIcon } from "lucide-react";
+import { getPieceName } from '@/utils/chessPieceUtils';
 
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
@@ -70,9 +71,21 @@ const Chessboard = () => {
           }));
 
           const color = capturedColor === 'w' ? "White" : "Black";
-          toast.success(`Captured ${color}'s ${capturedPiece}`);
+          const pieceName = getPieceName(capturedPiece);
+          
+          // Show toast with piece image
+          toast.success(
+            <div className="flex items-center gap-2">
+              <img 
+                src={`/${capturedColor}${capturedPiece}.svg`} 
+                alt={`${color} ${pieceName}`}
+                className="w-5 h-5"
+              />
+              <span>Captured {color}'s {pieceName}</span>
+            </div>
+          );
 
-          const successMessage = `Captured ${color}'s ${capturedPiece}`;
+          const successMessage = `Captured ${color}'s ${pieceName}`;
           playMoveSpeech("", "", successMessage);
         }
   
