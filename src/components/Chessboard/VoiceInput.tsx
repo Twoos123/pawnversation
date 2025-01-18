@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +12,22 @@ interface VoiceInputProps {
 const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+  useEffect(() => {
+    // Start recording when it's player's turn (disabled = false)
+    if (!disabled && !isRecording) {
+      console.log("Player's turn - starting microphone");
+      startRecording();
+    }
+    
+    // Cleanup function
+    return () => {
+      if (mediaRecorder) {
+        console.log("Cleaning up media recorder");
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [disabled]); // Re-run when disabled prop changes
 
   const startRecording = async () => {
     try {
@@ -33,19 +49,21 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
           const match = moveText.match(/([a-h][1-8])\s*to\s*([a-h][1-8])/i);
           if (match) {
             const [_, from, to] = match;
+            setIsRecording(false); // Stop recording when valid move is detected
             onMove(from.toLowerCase(), to.toLowerCase());
-          } else {
-            toast.error("Could not understand the move. Please try again.");
           }
         } catch (error) {
           console.error("Error processing voice command:", error);
           toast.error("Failed to process voice command. Please try again.");
+          // Restart recording after error
+          startRecording();
         }
       };
 
       setMediaRecorder(recorder);
       recorder.start();
       setIsRecording(true);
+      console.log("Started recording");
       toast.info("Listening for your move...");
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -53,20 +71,11 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder && isRecording) {
-      mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
-    }
-  };
-
   return (
     <Button
       variant="outline"
       size="icon"
-      disabled={disabled}
-      onClick={isRecording ? stopRecording : startRecording}
+      disabled={true} // Always disabled since we're handling recording automatically
       className={`transition-colors ${isRecording ? 'bg-red-100 hover:bg-red-200' : ''}`}
     >
       {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
