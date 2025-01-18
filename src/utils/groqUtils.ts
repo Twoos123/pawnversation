@@ -1,7 +1,8 @@
 import { Groq } from "groq-sdk";
 
 const groq = new Groq({
-  apiKey: "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"
+  apiKey: "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",
+  dangerouslyAllowBrowser: true  // Add this option to allow browser usage
 });
 
 export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
