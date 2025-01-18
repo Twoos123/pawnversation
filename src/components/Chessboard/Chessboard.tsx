@@ -66,7 +66,9 @@ const Chessboard = () => {
             [capturedColor]: [...prev[capturedColor], capturedPiece],
           }));
 
-          const successMessage= "Captured "+(capturedColor==='w' ? 'White\'s ' : 'Black\'s ')+ capturedPiece;
+          const color=(capturedColor==='w' ? 'White\'s ' : 'Black\'s ');
+
+          const successMessage= "Captured "+color+ capturedPiece;
           
           toast.success(successMessage);
 
@@ -75,9 +77,11 @@ const Chessboard = () => {
   
         // Check game status
         if (newGame.isCheckmate()) {
+          playMoveSpeech("","","Checkate player "+(move.color === 'w' ? 'White' : 'Black'));
           setGameStatus('checkmate');
           toast.success(`Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`);
         } else if (newGame.isDraw()) {
+          playMoveSpeech("","","Game over. Its a draw" );
           setGameStatus('draw');
           toast.info("Game Over - Draw!");
         } else if (newGame.isCheck()) {
