@@ -1,6 +1,7 @@
 import { InfoIcon, AlertTriangleIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface GameStatusProps {
   status: 'initial' | 'playing' | 'checkmate' | 'draw';
