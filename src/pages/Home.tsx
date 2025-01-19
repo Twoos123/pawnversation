@@ -59,7 +59,7 @@ const Home = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="relative h-40 mb-12"
+          className="relative h-40 mb-12 max-w-2xl mx-auto"
         >
           {['wp', 'wn', 'wb', 'wq', 'wk'].map((piece, index) => (
             <motion.img
@@ -70,8 +70,9 @@ const Home = () => {
                 hoveredPiece === piece ? 'scale-125 rotate-12' : ''
               }`}
               style={{
-                left: `${index * 20}%`,
+                left: `${15 + index * 17.5}%`,
                 top: '50%',
+                transform: 'translateY(-50%)',
               }}
               animate={{
                 y: [0, -20, 0],
