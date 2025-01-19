@@ -28,12 +28,12 @@ const Chessboard = () => {
     setIsThinking(true);
     console.log("AI is thinking...");
   
+    // Add a 1.5 second delay before AI makes its move
     setTimeout(() => {
       try {
         const moves = game.moves({ verbose: true });
         if (moves.length > 0) {
           const move = moves[Math.floor(Math.random() * moves.length)];
-          wait(2000);
           handleMove(move.from, move.to);
         }
       } catch (error) {
@@ -42,7 +42,7 @@ const Chessboard = () => {
       } finally {
         setIsThinking(false);
       }
-    }, 500);
+    }, 1500); // 1.5 seconds delay
   };
 
   const handleMove = (from: string, to: string) => {
