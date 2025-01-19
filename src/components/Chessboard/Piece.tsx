@@ -20,6 +20,12 @@ const Piece = ({ type, color, position }: PieceProps) => {
 
   const pieceImage = `/${color}${type}.svg`;
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    console.log('Touch start on piece:', position);
+    // Prevent scrolling while dragging
+    e.preventDefault();
+  };
+
   return (
     <div
       ref={drag}
@@ -35,11 +41,13 @@ const Piece = ({ type, color, position }: PieceProps) => {
         touchAction: 'none',
         transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out'
       }}
+      onTouchStart={handleTouchStart}
     >
       <img 
         src={pieceImage} 
         alt={`${color}${type}`} 
         className="w-full h-full transition-transform duration-300 ease-in-out" 
+        draggable={false}
       />
     </div>
   );

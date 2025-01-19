@@ -14,6 +14,7 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
   const [{ isOver }, drop] = useDrop({
     accept: 'piece',
     drop: (item: { position: string }) => {
+      console.log('Dropping piece from', item.position, 'to', position);
       onDrop(item.position, position);
     },
     collect: (monitor) => ({
@@ -26,10 +27,27 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
   const isBottomEdge = rank === '1';
   const isLeftEdge = file === 'a';
 
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    console.log('Touch end on square:', position);
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const square = element?.closest('[data-square]');
+    if (square) {
+      const toPosition = square.getAttribute('data-square');
+      const fromPosition = position;
+      if (toPosition && fromPosition !== toPosition) {
+        console.log('Moving piece from', fromPosition, 'to', toPosition);
+        onDrop(fromPosition, toPosition);
+      }
+    }
+  };
+
   return (
     <div className="relative">
       <div
         ref={drop}
+        data-square={position}
         className={cn(
           'flex items-center justify-center relative',
           isMobile ? 'w-10 h-10' : 'w-16 h-16',
@@ -37,6 +55,7 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
           isOver && 'opacity-75 scale-105',
           'transition-all duration-200 ease-in-out'
         )}
+        onTouchEnd={handleTouchEnd}
       >
         <div className={cn(
           'w-full h-full flex items-center justify-center',
