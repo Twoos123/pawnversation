@@ -2,6 +2,7 @@ import { InfoIcon, AlertTriangleIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { playMoveSpeech } from '@/utils/audio';
 
 interface GameStatusProps {
   status: 'initial' | 'playing' | 'checkmate' | 'draw';
@@ -14,11 +15,14 @@ const GameStatus = ({ status, winner }: GameStatusProps) => {
   useEffect(() => {
     if (status === 'initial') {
       setShowBanner(true);
+      playMoveSpeech("", "", "Welcome! You play as White. Make your first move to start the game.");
       const timer = setTimeout(() => {
         setShowBanner(false);
       }, 4000);
 
       return () => clearTimeout(timer);
+    } else if (status === 'draw') {
+      playMoveSpeech("", "", "Game over. It's a draw.");
     }
   }, [status]);
 
