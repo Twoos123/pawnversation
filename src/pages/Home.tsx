@@ -8,6 +8,13 @@ const Home = () => {
   const navigate = useNavigate();
   const [hoveredPiece, setHoveredPiece] = useState<string | null>(null);
 
+  // Generate random positions for each piece
+  const piecePositions = ['wp', 'wn', 'wb', 'wq', 'wk'].map((piece) => ({
+    piece,
+    left: Math.random() * 60 + 10, // Random position between 10% and 70%
+    delay: Math.random() * 0.5, // Random delay for animations
+  }));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       {/* Hero Section */}
@@ -59,9 +66,9 @@ const Home = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="relative h-40 mb-12 max-w-2xl mx-auto"
+          className="relative h-40 mb-12 max-w-2xl mx-auto overflow-hidden"
         >
-          {['wp', 'wn', 'wb', 'wq', 'wk'].map((piece, index) => (
+          {piecePositions.map(({ piece, left, delay }) => (
             <motion.img
               key={piece}
               src={`/${piece}.svg`}
@@ -70,17 +77,32 @@ const Home = () => {
                 hoveredPiece === piece ? 'scale-125 rotate-12' : ''
               }`}
               style={{
-                left: `${15 + index * 17.5}%`,
+                left: `${left}%`,
                 top: '50%',
-                transform: 'translateY(-50%)',
               }}
+              initial={{ y: -100, opacity: 0 }}
               animate={{
-                y: [0, -20, 0],
+                y: [-20, 20, -20],
+                rotate: [0, 5, -5, 0],
+                opacity: 1,
               }}
               transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: index * 0.2,
+                y: {
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay,
+                },
+                rotate: {
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay,
+                },
+                opacity: {
+                  duration: 0.5,
+                  delay,
+                },
               }}
               whileHover={{
                 scale: 1.2,
