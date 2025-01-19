@@ -29,7 +29,6 @@ const Chessboard = () => {
     setIsThinking(true);
     console.log("AI is thinking...");
   
-    // Simulate AI thinking delay
     setTimeout(() => {
       try {
         const moves = game.moves({ verbose: true });
@@ -187,11 +186,6 @@ const Chessboard = () => {
           {renderGameStatus()}
           
           <div className="flex justify-between items-center mb-4">
-            {isThinking && (
-              <div className="text-center text-gray-600 animate-pulse">
-                AI is thinking...
-              </div>
-            )}
             <VoiceInput 
               onMove={handleVoiceMove} 
               disabled={isThinking || game.turn() !== 'w' || game.isGameOver()}
