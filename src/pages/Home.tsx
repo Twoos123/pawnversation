@@ -65,6 +65,16 @@ const Home = () => {
           const repulsionX = dx * repulsionForce * -0.3; // Reduced repulsion strength
           const repulsionY = dy * repulsionForce * -0.3;
 
+          // Generate intermediate points for smoother movement
+          const generatePoints = () => {
+            const points = [];
+            const numPoints = 5; // Number of intermediate points
+            for (let i = 0; i < numPoints; i++) {
+              points.push(yOffset * Math.sin((i / numPoints) * Math.PI * 2));
+            }
+            return points;
+          };
+
           return (
             <motion.img
               key={`${piece}-${index}`}
@@ -87,42 +97,47 @@ const Home = () => {
                 opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
                 rotate: [rotation, rotation + 5, rotation - 5, rotation],
                 x: repulsionX,
-                y: repulsionY + yOffset,
+                y: generatePoints(),
               }}
               transition={{
                 scale: { 
-                  duration: 0.8,  // Slower scale transition
+                  duration: 0.8,
                   delay,
                   ease: "easeInOut"
                 },
                 opacity: { 
-                  duration: 0.8,  // Slower opacity transition
+                  duration: 0.8,
                   ease: "easeInOut"
                 },
                 rotate: {
-                  duration: duration * 1.5,  // Slower rotation
+                  duration: duration * 1.5,
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay,
                 },
                 x: { 
                   type: "spring", 
-                  stiffness: 50,  // Reduced stiffness for smoother movement
-                  damping: 20,    // Increased damping for smoother movement
-                  mass: 1.5       // Added mass for more inertia
+                  stiffness: 30,  // Even lower stiffness for smoother movement
+                  damping: 25,    // Increased damping for smoother movement
+                  mass: 2,        // Increased mass for more inertia
+                  restDelta: 0.001 // Smaller rest delta for smoother transitions
                 },
                 y: { 
-                  type: "spring", 
-                  stiffness: 50,  // Reduced stiffness for smoother movement
-                  damping: 20,    // Increased damping for smoother movement
-                  mass: 1.5       // Added mass for more inertia
+                  duration: duration * 1.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                  delay,
                 }
               }}
               whileHover={{
                 scale: scale * 1.3,
                 opacity: 1,
                 rotate: rotation,
-                transition: { duration: 0.8, ease: "easeInOut" }  // Slower hover transition
+                transition: { 
+                  duration: 1.2, 
+                  ease: "easeInOut"
+                }
               }}
               onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
               onHoverEnd={() => setHoveredPiece(null)}
