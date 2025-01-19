@@ -12,6 +12,40 @@ import CapturedPieces from './CapturedPieces';
 import GameStatus from './GameStatus';
 import BoardGrid from './BoardGrid';
 
+// Piece values for evaluation
+const PIECE_VALUES = {
+  p: 1,   // pawn
+  n: 3,   // knight
+  b: 3,   // bishop
+  r: 5,   // rook
+  q: 9,   // queen
+  k: 0    // king (not used in material evaluation)
+};
+
+// Position bonuses for pieces (simplified)
+const POSITION_BONUS = {
+  p: [  // Pawns are stronger in the center and advanced positions
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    [0.1, 0.2, 0.3, 0.4, 0.4, 0.3, 0.2, 0.1],
+    [0.05, 0.1, 0.2, 0.3, 0.3, 0.2, 0.1, 0.05],
+    [0, 0.05, 0.1, 0.2, 0.2, 0.1, 0.05, 0],
+    [0.05, -0.05, -0.1, 0, 0, -0.1, -0.05, 0.05],
+    [0.05, 0.1, 0.1, -0.2, -0.2, 0.1, 0.1, 0.05],
+    [0, 0, 0, 0, 0, 0, 0, 0]
+  ],
+  n: [  // Knights are stronger in the center
+    [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5],
+    [-0.4, -0.2, 0, 0, 0, 0, -0.2, -0.4],
+    [-0.3, 0, 0.1, 0.15, 0.15, 0.1, 0, -0.3],
+    [-0.3, 0.05, 0.15, 0.2, 0.2, 0.15, 0.05, -0.3],
+    [-0.3, 0, 0.15, 0.2, 0.2, 0.15, 0, -0.3],
+    [-0.3, 0.05, 0.1, 0.15, 0.15, 0.1, 0.05, -0.3],
+    [-0.4, -0.2, 0, 0.05, 0.05, 0, -0.2, -0.4],
+    [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5]
+  ]
+};
+
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
@@ -24,6 +58,38 @@ const Chessboard = () => {
     handleMove(from, to);
   };
 
+  const evaluatePosition = (position: Chess) => {
+    let score = 0;
+    
+    // Evaluate material and position
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const square = String.fromCharCode(97 + col) + (8 - row) as Square;
+        const piece = position.get(square);
+        
+        if (piece) {
+          // Material value
+          const materialValue = PIECE_VALUES[piece.type] || 0;
+          const multiplier = piece.color === 'w' ? -1 : 1; // Negative for white because AI plays black
+          score += materialValue * multiplier;
+          
+          // Position bonus
+          if (POSITION_BONUS[piece.type]) {
+            const positionValue = POSITION_BONUS[piece.type][piece.color === 'b' ? row : 7 - row][col];
+            score += positionValue * multiplier;
+          }
+        }
+      }
+    }
+    
+    // Additional strategic evaluations
+    if (position.isCheck()) score += 0.5; // Slight bonus for checking the opponent
+    if (position.isCheckmate()) score += 100; // Big bonus for checkmate
+    if (position.isDraw()) score += 0; // Neutral for draws
+    
+    return score;
+  };
+
   const makeAIMove = () => {
     setIsThinking(true);
     console.log("AI is thinking...");
@@ -32,8 +98,24 @@ const Chessboard = () => {
       try {
         const moves = game.moves({ verbose: true });
         if (moves.length > 0) {
-          const move = moves[Math.floor(Math.random() * moves.length)];
-          handleMove(move.from, move.to);
+          // Evaluate each possible move
+          const evaluatedMoves = moves.map(move => {
+            const newPosition = new Chess(game.fen());
+            newPosition.move(move);
+            return {
+              move,
+              score: evaluatePosition(newPosition)
+            };
+          });
+          
+          // Sort moves by score and pick the best one
+          evaluatedMoves.sort((a, b) => b.score - a.score);
+          
+          // Add some randomness to top moves to make it less predictable
+          const topMoves = evaluatedMoves.slice(0, 3);
+          const selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)].move;
+          
+          handleMove(selectedMove.from, selectedMove.to);
         }
       } catch (error) {
         console.error("AI move error:", error);
