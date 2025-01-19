@@ -28,7 +28,6 @@ const Chessboard = () => {
     setIsThinking(true);
     console.log("AI is thinking...");
   
-    // Add a 1.5 second delay before AI makes its move
     setTimeout(() => {
       try {
         const moves = game.moves({ verbose: true });
@@ -42,7 +41,7 @@ const Chessboard = () => {
       } finally {
         setIsThinking(false);
       }
-    }, 1500); // 1.5 seconds delay
+    }, 1500);
   };
 
   const handleMove = (from: string, to: string) => {
@@ -62,7 +61,10 @@ const Chessboard = () => {
           setGameStatus('playing');
         }
 
-        playMoveSpeech(from, to);
+        // Get the piece name and color for the speech
+        const pieceColor = move.color === 'w' ? 'White' : 'Black';
+        const pieceName = getPieceName(move.piece);
+        playMoveSpeech(from, to, `${pieceColor} ${pieceName} moves from ${from} to ${to}`);
   
         if (move.captured) {
           const capturedPiece = move.captured;
@@ -73,20 +75,20 @@ const Chessboard = () => {
           }));
 
           const color = capturedColor === 'w' ? "White" : "Black";
-          const pieceName = getPieceName(capturedPiece);
+          const capturedPieceName = getPieceName(capturedPiece);
           
           toast.success(
             <div className="flex items-center gap-2">
               <img 
                 src={`/${capturedColor}${capturedPiece}.svg`} 
-                alt={`${color} ${pieceName}`}
+                alt={`${color} ${capturedPieceName}`}
                 className="w-5 h-5"
               />
-              <span>Captured {color}'s {pieceName}</span>
+              <span>Captured {color}'s {capturedPieceName}</span>
             </div>
           );
 
-          playMoveSpeech("", "", `Captured ${color}'s ${pieceName}`);
+          playMoveSpeech("", "", `Captured ${color}'s ${capturedPieceName}`);
         }
   
         if (newGame.isCheckmate()) {
