@@ -14,7 +14,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1F2C] to-[#403E43] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-20">
         <motion.div
@@ -26,7 +26,7 @@ const Index = () => {
           <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
             Pawnversation
           </h1>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-xl text-muted-foreground mb-8">
             Experience chess like never before with voice-controlled moves
           </p>
           <div className="flex justify-center gap-4">
@@ -36,7 +36,7 @@ const Index = () => {
             >
               <Button
                 onClick={() => setShowChessboard(true)}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 Start Playing
               </Button>
@@ -56,7 +56,7 @@ const Index = () => {
               key={piece}
               src={`/${piece}.svg`}
               alt={piece}
-              className="absolute w-16 h-16"
+              className="absolute w-16 h-16 dark:invert"
               style={{
                 left: `${index * 20}%`,
                 top: '50%',
@@ -97,10 +97,10 @@ const Index = () => {
             <motion.div
               key={index}
               whileHover={{ scale: 1.05 }}
-              className="p-6 rounded-lg bg-gray-800/50 backdrop-blur-sm"
+              className="p-6 rounded-lg bg-card text-card-foreground shadow-lg"
             >
               <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
+              <p className="text-muted-foreground">{feature.description}</p>
             </motion.div>
           ))}
         </motion.div>
