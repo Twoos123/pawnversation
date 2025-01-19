@@ -40,7 +40,8 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
       >
         <div className={cn(
           'w-full h-full flex items-center justify-center',
-          'transition-all duration-300 ease-in-out'
+          'transition-all duration-300 ease-in-out',
+          isOver && 'scale-110'
         )}>
           {children}
         </div>
