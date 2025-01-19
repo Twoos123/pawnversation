@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
@@ -7,18 +7,7 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
   const [hoveredPiece, setHoveredPiece] = useState<string | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
-  // Track mouse position
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   // Generate multiple instances of each piece type for better distribution
   const pieces = [
     'wp', 'wp', 'wp', 'wp',  // 4 white pawns
@@ -35,14 +24,13 @@ const Home = () => {
     'bk',                    // 1 black king
   ];
 
-  // Generate random positions for each piece
+  // Generate random positions and movement patterns for each piece
   const piecePositions = pieces.map((piece) => ({
     piece,
     left: Math.random() * 80 + 10,     // Random position between 10% and 90% horizontally
     top: Math.random() * 70 + 15,      // Random position between 15% and 85% vertically
     delay: Math.random() * 0.8,        // Random delay for animations
-    duration: 5 + Math.random() * 3,   // Slower duration between 5-8s
-    yOffset: Math.random() * 40 - 20,  // Random Y offset for floating
+    duration: 15 + Math.random() * 10,  // Slower duration between 15-25s for wandering
     scale: 0.8 + Math.random() * 0.4,  // Random initial scale between 0.8 and 1.2
     rotation: Math.random() * 360,     // Random initial rotation
   }));
@@ -51,99 +39,68 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted overflow-hidden relative">
       {/* Floating Chess Pieces Layer */}
       <div className="fixed inset-0 pointer-events-none">
-        {piecePositions.map(({ piece, left, top, delay, duration, yOffset, scale, rotation }, index) => {
-          // Calculate distance between mouse and piece
-          const pieceX = (window.innerWidth * left) / 100;
-          const pieceY = (window.innerHeight * top) / 100;
-          const dx = mousePosition.x - pieceX;
-          const dy = mousePosition.y - pieceY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // Calculate repulsion force (stronger when closer)
-          const maxDistance = 300; // Increased distance for repulsion effect
-          const repulsionForce = Math.max(0, 1 - distance / maxDistance);
-          const repulsionX = dx * repulsionForce * -0.3; // Reduced repulsion strength
-          const repulsionY = dy * repulsionForce * -0.3;
-
-          // Generate intermediate points for smoother movement
-          const generatePoints = () => {
-            const points = [];
-            const numPoints = 5; // Number of intermediate points
-            for (let i = 0; i < numPoints; i++) {
-              points.push(yOffset * Math.sin((i / numPoints) * Math.PI * 2));
-            }
-            return points;
-          };
-
-          return (
-            <motion.img
-              key={`${piece}-${index}`}
-              src={`/${piece}.svg`}
-              alt={piece}
-              className={`absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20 ${
-                hoveredPiece === `${piece}-${index}` ? 'opacity-100' : ''
-              }`}
-              style={{
-                left: `${left}%`,
-                top: `${top}%`,
-              }}
-              initial={{ 
-                scale: 0,
-                opacity: 0,
-                rotate: -180
-              }}
-              animate={{
-                scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
-                opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
-                rotate: [rotation, rotation + 5, rotation - 5, rotation],
-                x: repulsionX,
-                y: generatePoints(),
-              }}
-              transition={{
-                scale: { 
-                  duration: 0.8,
-                  delay,
-                  ease: "easeInOut"
-                },
-                opacity: { 
-                  duration: 0.8,
-                  ease: "easeInOut"
-                },
-                rotate: {
-                  duration: duration * 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay,
-                },
-                x: { 
-                  type: "spring", 
-                  stiffness: 30,  // Even lower stiffness for smoother movement
-                  damping: 25,    // Increased damping for smoother movement
-                  mass: 2,        // Increased mass for more inertia
-                  restDelta: 0.001 // Smaller rest delta for smoother transitions
-                },
-                y: { 
-                  duration: duration * 1.2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  times: [0, 0.2, 0.4, 0.6, 0.8, 1],
-                  delay,
-                }
-              }}
-              whileHover={{
-                scale: scale * 1.3,
-                opacity: 1,
-                rotate: rotation,
-                transition: { 
-                  duration: 1.2, 
-                  ease: "easeInOut"
-                }
-              }}
-              onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
-              onHoverEnd={() => setHoveredPiece(null)}
-            />
-          );
-        })}
+        {piecePositions.map(({ piece, left, top, delay, duration, scale, rotation }, index) => (
+          <motion.img
+            key={`${piece}-${index}`}
+            src={`/${piece}.svg`}
+            alt={piece}
+            className={`absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20 ${
+              hoveredPiece === `${piece}-${index}` ? 'opacity-100' : ''
+            }`}
+            initial={{ 
+              scale: 0,
+              opacity: 0,
+              rotate: -180
+            }}
+            animate={{
+              scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
+              opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
+              rotate: [rotation, rotation + 10, rotation - 10, rotation],
+              x: [0, 100, -100, 0],
+              y: [0, -50, 50, 0],
+            }}
+            transition={{
+              scale: { 
+                duration: 0.8,
+                delay,
+                ease: "easeInOut"
+              },
+              opacity: { 
+                duration: 0.8,
+                ease: "easeInOut"
+              },
+              rotate: {
+                duration: duration * 0.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay,
+              },
+              x: {
+                duration: duration,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.25, 0.75, 1]
+              },
+              y: {
+                duration: duration * 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.33, 0.66, 1]
+              }
+            }}
+            whileHover={{
+              scale: scale * 1.3,
+              opacity: 1,
+              rotate: rotation,
+              transition: { 
+                duration: 1.2, 
+                ease: "easeInOut"
+              }
+            }}
+            onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
+            onHoverEnd={() => setHoveredPiece(null)}
+          />
+        ))}
       </div>
 
       {/* Main Content */}
