@@ -16,6 +16,40 @@ const languageMap: Record<SupportedLanguage, string> = {
 };
 
 /**
+ * Translates text to English using Groq
+ */
+const translateToEnglish = async (text: string, sourceLanguage: string): Promise<string> => {
+  if (sourceLanguage === 'en') return text;
+  
+  console.log(`Translating text from ${sourceLanguage} to English:`, text);
+  
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a translator. Translate the following chess move to English. Only return the translation, nothing else."
+        },
+        {
+          role: "user",
+          content: `Translate this chess move from ${sourceLanguage} to English: ${text}`
+        }
+      ],
+      model: "mixtral-8x7b-32768",
+      temperature: 0.1,
+      max_tokens: 100,
+    });
+
+    const translation = completion.choices[0]?.message?.content || text;
+    console.log("Translated text:", translation);
+    return translation;
+  } catch (error) {
+    console.error("Translation error:", error);
+    return text; // Fallback to original text if translation fails
+  }
+};
+
+/**
  * Processes voice command using Groq API
  */
 export const processVoiceCommand = async (
@@ -43,7 +77,14 @@ export const processVoiceCommand = async (
     });
 
     console.log("Transcription result:", transcription.text);
-    return transcription.text;
+    
+    // Translate to English if not already in English
+    const translatedText = await translateToEnglish(
+      transcription.text, 
+      languageMap[language]
+    );
+    
+    return translatedText;
   } catch (error) {
     console.error("Error processing voice command:", error);
     throw new Error("Failed to process voice command");
