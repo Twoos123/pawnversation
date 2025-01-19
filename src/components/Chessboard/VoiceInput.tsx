@@ -37,10 +37,14 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
           const moveText = await processVoiceCommand(audioBlob, language);
           console.log("Processed move text:", moveText);
           
-          // Extract from and to positions from the move text
-          const match = moveText.match(/([a-h][1-8])\s*to\s*([a-h][1-8])/i);
-          if (match) {
-            const [_, from, to] = match;
+          // Extract from and to positions using a more flexible regex pattern
+          // This will match any two chess coordinates (a-h)(1-8) that appear in the text
+          const coordinates = moveText.match(/[a-h][1-8]/gi);
+          console.log("Extracted coordinates:", coordinates);
+          
+          if (coordinates && coordinates.length >= 2) {
+            const [from, to] = coordinates;
+            console.log(`Executing move from ${from} to ${to}`);
             onMove(from.toLowerCase(), to.toLowerCase());
           } else {
             const errorMessages = {
