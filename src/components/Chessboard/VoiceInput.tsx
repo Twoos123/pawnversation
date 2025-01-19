@@ -65,15 +65,17 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
   };
 
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      disabled={disabled}
-      onClick={isRecording ? stopRecording : startRecording}
-      className={`transition-colors ${isRecording ? 'bg-red-100 hover:bg-red-200' : ''}`}
-    >
-      {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-    </Button>
+    <div className="flex justify-center w-full">
+      <Button
+        variant="outline"
+        size="icon"
+        disabled={disabled}
+        onClick={isRecording ? stopRecording : startRecording}
+        className={`transition-colors ${isRecording ? 'bg-red-100 hover:bg-red-200' : ''}`}
+      >
+        {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+      </Button>
+    </div>
   );
 };
 
