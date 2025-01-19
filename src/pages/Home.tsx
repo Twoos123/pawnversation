@@ -41,7 +41,7 @@ const Home = () => {
     left: Math.random() * 80 + 10,     // Random position between 10% and 90% horizontally
     top: Math.random() * 70 + 15,      // Random position between 15% and 85% vertically
     delay: Math.random() * 0.8,        // Random delay for animations
-    duration: 3 + Math.random() * 2,   // Random duration between 3-5s
+    duration: 5 + Math.random() * 3,   // Slower duration between 5-8s
     yOffset: Math.random() * 40 - 20,  // Random Y offset for floating
     scale: 0.8 + Math.random() * 0.4,  // Random initial scale between 0.8 and 1.2
     rotation: Math.random() * 360,     // Random initial rotation
@@ -60,10 +60,10 @@ const Home = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           // Calculate repulsion force (stronger when closer)
-          const maxDistance = 200; // Maximum distance for repulsion effect
+          const maxDistance = 300; // Increased distance for repulsion effect
           const repulsionForce = Math.max(0, 1 - distance / maxDistance);
-          const repulsionX = dx * repulsionForce * -0.5; // Negative to move away
-          const repulsionY = dy * repulsionForce * -0.5;
+          const repulsionX = dx * repulsionForce * -0.3; // Reduced repulsion strength
+          const repulsionY = dy * repulsionForce * -0.3;
 
           return (
             <motion.img
@@ -85,34 +85,44 @@ const Home = () => {
               animate={{
                 scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
                 opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
-                y: [yOffset, -yOffset, yOffset],
                 rotate: [rotation, rotation + 5, rotation - 5, rotation],
                 x: repulsionX,
                 y: repulsionY + yOffset,
               }}
               transition={{
-                scale: { duration: 0.5, delay },
-                opacity: { duration: 0.5 },
-                y: {
-                  duration,
-                  repeat: Infinity,
-                  ease: "easeInOut",
+                scale: { 
+                  duration: 0.8,  // Slower scale transition
                   delay,
+                  ease: "easeInOut"
+                },
+                opacity: { 
+                  duration: 0.8,  // Slower opacity transition
+                  ease: "easeInOut"
                 },
                 rotate: {
-                  duration: duration * 1.2,
+                  duration: duration * 1.5,  // Slower rotation
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay,
                 },
-                x: { type: "spring", stiffness: 100, damping: 10 },
-                y: { type: "spring", stiffness: 100, damping: 10 },
+                x: { 
+                  type: "spring", 
+                  stiffness: 50,  // Reduced stiffness for smoother movement
+                  damping: 20,    // Increased damping for smoother movement
+                  mass: 1.5       // Added mass for more inertia
+                },
+                y: { 
+                  type: "spring", 
+                  stiffness: 50,  // Reduced stiffness for smoother movement
+                  damping: 20,    // Increased damping for smoother movement
+                  mass: 1.5       // Added mass for more inertia
+                }
               }}
               whileHover={{
                 scale: scale * 1.3,
                 opacity: 1,
                 rotate: rotation,
-                transition: { duration: 0.2 }
+                transition: { duration: 0.8, ease: "easeInOut" }  // Slower hover transition
               }}
               onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
               onHoverEnd={() => setHoveredPiece(null)}
