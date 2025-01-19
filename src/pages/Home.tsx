@@ -33,7 +33,7 @@ const Home = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              Pawnversation
+              PawnVersation
             </motion.h1>
           </div>
           <p className="text-xl text-muted-foreground mb-8">
