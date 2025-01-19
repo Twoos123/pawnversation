@@ -1,4 +1,4 @@
-# Pawnversation
+# PawnVersation
 
 A voice-controlled chess game powered by Groq.
 

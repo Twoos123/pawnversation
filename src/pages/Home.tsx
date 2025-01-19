@@ -21,7 +21,7 @@ const Home = () => {
           <div className="flex flex-col items-center justify-center gap-4">
             <motion.img
               src="/logo.svg"
-              alt="Pawnversation Logo"
+              alt="PawnVersation Logo"
               className="w-24 h-24 md:w-32 md:h-32 dark:invert"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
