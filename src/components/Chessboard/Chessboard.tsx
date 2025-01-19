@@ -73,7 +73,7 @@ const Chessboard = () => {
           setGameStatus('playing');
         }
 
-        // Announce the move
+        // Announce only the move coordinates
         await announceMessage(`${from} to ${to}`);
   
         // Handle captured pieces
@@ -101,8 +101,6 @@ const Chessboard = () => {
               <span>{successMessage}</span>
             </div>
           );
-
-          await announceMessage(successMessage);
         }
   
         // Check game status
@@ -121,7 +119,7 @@ const Chessboard = () => {
           toast.info(message);
         } else if (newGame.isCheck()) {
           const message = await translateText(
-            `Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`,
+            `Check!`,
             currentLanguage
           );
           await announceMessage(message);
