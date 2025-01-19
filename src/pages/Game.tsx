@@ -14,19 +14,7 @@ const Game = () => {
         animate={{ opacity: 1 }}
         className="container mx-auto px-4 py-8"
       >
-        <div className="flex justify-between items-center mb-8">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button
-              onClick={() => navigate("/")}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              ← Back to Home
-            </Button>
-          </motion.div>
+        <div className="flex justify-end mb-8">
           <ThemeToggle />
         </div>
         
@@ -37,6 +25,21 @@ const Game = () => {
         >
           <Chessboard />
         </motion.div>
+      </motion.div>
+
+      {/* Floating back button */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="fixed bottom-8 left-8 z-50"
+      >
+        <Button
+          onClick={() => navigate("/")}
+          variant="outline"
+          className="flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow"
+        >
+          ← Back to Home
+        </Button>
       </motion.div>
     </div>
   );
