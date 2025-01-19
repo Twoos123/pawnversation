@@ -8,27 +8,45 @@ const Home = () => {
   const navigate = useNavigate();
   const [hoveredPiece, setHoveredPiece] = useState<string | null>(null);
 
+  // Generate multiple instances of each piece type for better distribution
+  const pieces = [
+    'wp', 'wp', 'wp', 'wp',  // 4 white pawns
+    'wn', 'wn',              // 2 white knights
+    'wb', 'wb',              // 2 white bishops
+    'wr', 'wr',              // 2 white rooks
+    'wq',                    // 1 white queen
+    'wk',                    // 1 white king
+    'bp', 'bp', 'bp', 'bp',  // 4 black pawns
+    'bn', 'bn',              // 2 black knights
+    'bb', 'bb',              // 2 black bishops
+    'br', 'br',              // 2 black rooks
+    'bq',                    // 1 black queen
+    'bk',                    // 1 black king
+  ];
+
   // Generate random positions for each piece across the entire viewport
-  const piecePositions = ['wp', 'wn', 'wb', 'wq', 'wk', 'bp', 'bn', 'bb', 'bq', 'bk'].map((piece) => ({
+  const piecePositions = pieces.map((piece) => ({
     piece,
-    left: Math.random() * 80 + 10, // Random position between 10% and 90% horizontally
-    top: Math.random() * 70 + 15,  // Random position between 15% and 85% vertically
-    delay: Math.random() * 0.8,    // Random delay for animations
-    duration: 3 + Math.random() * 2, // Random duration between 3-5s
-    yOffset: Math.random() * 40 - 20, // Random Y offset for floating
+    left: Math.random() * 80 + 10,     // Random position between 10% and 90% horizontally
+    top: Math.random() * 70 + 15,      // Random position between 15% and 85% vertically
+    delay: Math.random() * 0.8,        // Random delay for animations
+    duration: 3 + Math.random() * 2,   // Random duration between 3-5s
+    yOffset: Math.random() * 40 - 20,  // Random Y offset for floating
+    scale: 0.8 + Math.random() * 0.4,  // Random initial scale between 0.8 and 1.2
+    rotation: Math.random() * 360,     // Random initial rotation
   }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted overflow-hidden relative">
       {/* Floating Chess Pieces Layer */}
       <div className="fixed inset-0 pointer-events-none">
-        {piecePositions.map(({ piece, left, top, delay, duration, yOffset }) => (
+        {piecePositions.map(({ piece, left, top, delay, duration, yOffset, scale, rotation }, index) => (
           <motion.img
-            key={piece}
+            key={`${piece}-${index}`}
             src={`/${piece}.svg`}
             alt={piece}
-            className={`absolute w-12 h-12 md:w-16 md:h-16 dark:invert opacity-20 ${
-              hoveredPiece === piece ? 'opacity-100' : ''
+            className={`absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20 ${
+              hoveredPiece === `${piece}-${index}` ? 'opacity-100' : ''
             }`}
             style={{
               left: `${left}%`,
@@ -40,10 +58,10 @@ const Home = () => {
               rotate: -180
             }}
             animate={{
-              scale: 1,
-              opacity: hoveredPiece === piece ? 1 : 0.2,
+              scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
+              opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
               y: [yOffset, -yOffset, yOffset],
-              rotate: [0, 5, -5, 0],
+              rotate: [rotation, rotation + 5, rotation - 5, rotation],
             }}
             transition={{
               scale: { duration: 0.5, delay },
@@ -62,12 +80,12 @@ const Home = () => {
               },
             }}
             whileHover={{
-              scale: 1.3,
+              scale: scale * 1.3,
               opacity: 1,
-              rotate: 0,
+              rotate: rotation,
               transition: { duration: 0.2 }
             }}
-            onHoverStart={() => setHoveredPiece(piece)}
+            onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
             onHoverEnd={() => setHoveredPiece(null)}
           />
         ))}
