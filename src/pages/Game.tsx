@@ -8,7 +8,7 @@ const Game = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted relative">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
