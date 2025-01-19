@@ -39,67 +39,78 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted overflow-hidden relative">
       {/* Floating Chess Pieces Layer */}
       <div className="fixed inset-0 pointer-events-none">
-        {piecePositions.map(({ piece, left, top, delay, duration, scale, rotation }, index) => (
-          <motion.img
-            key={`${piece}-${index}`}
-            src={`/${piece}.svg`}
-            alt={piece}
-            className="absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20"
-            initial={{ 
-              scale: 0,
-              opacity: 0,
-              rotate: -180,
-              x: `${Math.random() * 100}vw`,  // Random starting X position
-              y: `${Math.random() * 100}vh`,  // Random starting Y position
-            }}
-            animate={{
-              scale,
-              opacity: 0.2,
-              rotate: [rotation, rotation + 10, rotation - 10, rotation],
-              x: [
-                `${Math.random() * 80 + 10}vw`,
-                `${Math.random() * 80 + 10}vw`,
-                `${Math.random() * 80 + 10}vw`,
-                `${Math.random() * 80 + 10}vw`
-              ],
-              y: [
-                `${Math.random() * 70 + 15}vh`,
-                `${Math.random() * 70 + 15}vh`,
-                `${Math.random() * 70 + 15}vh`,
-                `${Math.random() * 70 + 15}vh`
-              ],
-            }}
-            transition={{
-              scale: { 
-                duration: 0.8,
-                delay,
-                ease: "easeInOut"
-              },
-              opacity: { 
-                duration: 0.8,
-                ease: "easeInOut"
-              },
-              rotate: {
-                duration: duration * 0.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay,
-              },
-              x: {
-                duration: duration,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.33, 0.66, 1]
-              },
-              y: {
-                duration: duration * 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.33, 0.66, 1]
-              }
-            }}
-          />
-        ))}
+        <AnimatePresence>
+          {piecePositions.map(({ piece, left, top, delay, duration, scale, rotation }, index) => (
+            <motion.img
+              key={`${piece}-${index}`}
+              src={`/${piece}.svg`}
+              alt={piece}
+              className="absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20"
+              initial={{ 
+                scale: 0,
+                opacity: 0,
+                rotate: -180,
+                x: `${Math.random() * 100}vw`,  // Random starting X position
+                y: `${Math.random() * 100}vh`,  // Random starting Y position
+              }}
+              animate={{
+                scale,
+                opacity: 0.2,
+                rotate: [rotation, rotation + 10, rotation - 10, rotation],
+                x: [
+                  `${Math.random() * 80 + 10}vw`,
+                  `${Math.random() * 80 + 10}vw`,
+                  `${Math.random() * 80 + 10}vw`,
+                  `${Math.random() * 80 + 10}vw`
+                ],
+                y: [
+                  `${Math.random() * 70 + 15}vh`,
+                  `${Math.random() * 70 + 15}vh`,
+                  `${Math.random() * 70 + 15}vh`,
+                  `${Math.random() * 70 + 15}vh`
+                ],
+              }}
+              transition={{
+                scale: { 
+                  duration: 1.5,
+                  delay,
+                  ease: "easeInOut"
+                },
+                opacity: { 
+                  duration: 1.5,
+                  delay,
+                  ease: "easeInOut"
+                },
+                rotate: {
+                  duration: duration * 0.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay,
+                },
+                x: {
+                  duration: duration,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  times: [0, 0.33, 0.66, 1]
+                },
+                y: {
+                  duration: duration * 1.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  times: [0, 0.33, 0.66, 1]
+                }
+              }}
+              exit={{
+                scale: 0,
+                opacity: 0,
+                transition: {
+                  duration: 1.5,
+                  ease: "easeInOut"
+                }
+              }}
+            />
+          ))}
+        </AnimatePresence>
       </div>
 
       {/* Main Content */}
