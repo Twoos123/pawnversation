@@ -1,18 +1,29 @@
 import { Groq } from "groq-sdk";
 import { validateAudioFile } from "./audioUtils";
-import { extractChessMove } from "./voiceCommandUtils";
 
 const groq = new Groq({
   apiKey: "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",
   dangerouslyAllowBrowser: true
 });
 
+type SupportedLanguage = 'en-US' | 'es-ES' | 'fr-FR' | 'de-DE';
+
+const languageMap: Record<SupportedLanguage, string> = {
+  'en-US': 'en',
+  'es-ES': 'es',
+  'fr-FR': 'fr',
+  'de-DE': 'de'
+};
+
 /**
  * Processes voice command using Groq API
  */
-export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
+export const processVoiceCommand = async (
+  audioBlob: Blob, 
+  language: SupportedLanguage = 'en-US'
+): Promise<string> => {
   try {
-    console.log("Processing voice command with Groq...");
+    console.log(`Processing voice command with Groq in language: ${language}`);
     
     // Convert Blob to File
     const file = new File([audioBlob], "recording.webm", { type: "audio/webm" });
@@ -26,7 +37,7 @@ export const processVoiceCommand = async (audioBlob: Blob): Promise<string> => {
     const transcription = await groq.audio.transcriptions.create({
       file,
       model: "whisper-large-v3-turbo",
-      language: "en",
+      language: languageMap[language],
       response_format: "json",
       temperature: 0.0,
     });

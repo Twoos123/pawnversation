@@ -5,12 +5,19 @@ import { toast } from "sonner";
 import { processVoiceCommand } from '@/utils/groqUtils';
 import { playMoveSpeech } from '@/utils/audio';
 
+type SupportedLanguage = 'en-US' | 'es-ES' | 'fr-FR' | 'de-DE';
+
 interface VoiceInputProps {
   onMove: (from: string, to: string) => void;
   disabled?: boolean;
+  language?: SupportedLanguage;
 }
 
-const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
+const VoiceInput: React.FC<VoiceInputProps> = ({ 
+  onMove, 
+  disabled, 
+  language = 'en-US' 
+}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
@@ -27,7 +34,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
       recorder.onstop = async () => {
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         try {
-          const moveText = await processVoiceCommand(audioBlob);
+          const moveText = await processVoiceCommand(audioBlob, language);
           console.log("Processed move text:", moveText);
           
           // Extract from and to positions from the move text
@@ -36,23 +43,48 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onMove, disabled }) => {
             const [_, from, to] = match;
             onMove(from.toLowerCase(), to.toLowerCase());
           } else {
-            playMoveSpeech("","","Could not understand the move. Please try again.");
-            toast.error("Could not understand the move. Please try again.");
+            const errorMessages = {
+              'en-US': 'Could not understand the move. Please try again.',
+              'es-ES': 'No se pudo entender el movimiento. Por favor, inténtelo de nuevo.',
+              'fr-FR': 'Impossible de comprendre le mouvement. Veuillez réessayer.',
+              'de-DE': 'Konnte den Zug nicht verstehen. Bitte versuchen Sie es erneut.'
+            };
+            playMoveSpeech("", "", errorMessages[language], language);
+            toast.error(errorMessages[language]);
           }
         } catch (error) {
           console.error("Error processing voice command:", error);
-          playMoveSpeech("","","Failed to process voice command. Please try again.");
-          toast.error("Failed to process voice command. Please try again.");
+          const errorMessages = {
+            'en-US': 'Failed to process voice command. Please try again.',
+            'es-ES': 'Error al procesar el comando de voz. Por favor, inténtelo de nuevo.',
+            'fr-FR': 'Échec du traitement de la commande vocale. Veuillez réessayer.',
+            'de-DE': 'Fehler bei der Verarbeitung des Sprachbefehls. Bitte versuchen Sie es erneut.'
+          };
+          playMoveSpeech("", "", errorMessages[language], language);
+          toast.error(errorMessages[language]);
         }
       };
 
       setMediaRecorder(recorder);
       recorder.start();
       setIsRecording(true);
-      toast.info("Listening for your move...");
+      
+      const listeningMessages = {
+        'en-US': 'Listening for your move...',
+        'es-ES': 'Escuchando tu movimiento...',
+        'fr-FR': 'En attente de votre mouvement...',
+        'de-DE': 'Warte auf Ihren Zug...'
+      };
+      toast.info(listeningMessages[language]);
     } catch (error) {
       console.error("Error accessing microphone:", error);
-      toast.error("Could not access microphone. Please check permissions.");
+      const errorMessages = {
+        'en-US': 'Could not access microphone. Please check permissions.',
+        'es-ES': 'No se pudo acceder al micrófono. Por favor, verifique los permisos.',
+        'fr-FR': 'Impossible d\'accéder au microphone. Veuillez vérifier les autorisations.',
+        'de-DE': 'Konnte nicht auf das Mikrofon zugreifen. Bitte überprüfen Sie die Berechtigungen.'
+      };
+      toast.error(errorMessages[language]);
     }
   };
 
