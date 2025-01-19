@@ -34,10 +34,16 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
         className={cn(
           'w-16 h-16 flex items-center justify-center relative',
           black ? 'bg-[#B58863]' : 'bg-[#F0D9B5]',
-          isOver && 'opacity-75'
+          isOver && 'opacity-75 scale-105',
+          'transition-all duration-200 ease-in-out'
         )}
       >
-        {children}
+        <div className={cn(
+          'w-full h-full flex items-center justify-center',
+          'transition-all duration-300 ease-in-out'
+        )}>
+          {children}
+        </div>
         
         {/* File label (a-h) on bottom edge */}
         {isBottomEdge && (

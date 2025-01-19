@@ -22,12 +22,19 @@ const Piece = ({ type, color, position }: PieceProps) => {
     <div
       ref={drag}
       className={cn(
-        'w-14 h-14 cursor-grab active:cursor-grabbing transition-transform hover:scale-105',
-        isDragging && 'opacity-50'
+        'w-14 h-14 cursor-grab active:cursor-grabbing',
+        'transition-all duration-300 ease-in-out transform',
+        'hover:scale-105',
+        isDragging ? 'opacity-50 scale-95' : 'opacity-100',
+        'animate-fade-in'
       )}
       style={{ touchAction: 'none' }}
     >
-      <img src={pieceImage} alt={`${color}${type}`} className="w-full h-full" />
+      <img 
+        src={pieceImage} 
+        alt={`${color}${type}`} 
+        className="w-full h-full transition-transform duration-300 ease-in-out" 
+      />
     </div>
   );
 };
