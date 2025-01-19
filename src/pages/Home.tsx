@@ -44,9 +44,7 @@ const Home = () => {
             key={`${piece}-${index}`}
             src={`/${piece}.svg`}
             alt={piece}
-            className={`absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20 ${
-              hoveredPiece === `${piece}-${index}` ? 'opacity-100' : ''
-            }`}
+            className="absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20"
             initial={{ 
               scale: 0,
               opacity: 0,
@@ -55,8 +53,8 @@ const Home = () => {
               y: `${Math.random() * 100}vh`,  // Random starting Y position
             }}
             animate={{
-              scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
-              opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
+              scale,
+              opacity: 0.2,
               rotate: [rotation, rotation + 10, rotation - 10, rotation],
               x: [
                 `${Math.random() * 80 + 10}vw`,
@@ -100,17 +98,6 @@ const Home = () => {
                 times: [0, 0.33, 0.66, 1]
               }
             }}
-            whileHover={{
-              scale: scale * 1.3,
-              opacity: 1,
-              rotate: rotation,
-              transition: { 
-                duration: 1.2, 
-                ease: "easeInOut"
-              }
-            }}
-            onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
-            onHoverEnd={() => setHoveredPiece(null)}
           />
         ))}
       </div>
@@ -206,14 +193,10 @@ const Home = () => {
 
       </div>
 
-      {/* Theme Toggle */}
-      <motion.div 
-        className="absolute top-4 right-4"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
+      {/* Theme Toggle - Moved outside container for better positioning */}
+      <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
-      </motion.div>
+      </div>
     </div>
   );
 };
