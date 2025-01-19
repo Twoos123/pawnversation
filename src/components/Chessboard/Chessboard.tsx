@@ -1,17 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Chess, Square } from 'chess.js';
+import { useState } from 'react';
+import { Chess } from 'chess.js';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { default as SquareComponent } from './Square';
-import Piece from './Piece';
-import MoveHistory from './MoveHistory';
-import VoiceInput from './VoiceInput';
 import { toast } from 'sonner';
 import { playMoveSpeech } from '@/utils/audio';
 import { wait } from '@/utils/timeUtils';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon, AlertTriangleIcon } from "lucide-react";
 import { getPieceName } from '@/utils/chessPieceUtils';
+import VoiceInput from './VoiceInput';
+import MoveHistory from './MoveHistory';
+import CapturedPieces from './CapturedPieces';
+import GameStatus from './GameStatus';
+import BoardGrid from './BoardGrid';
 
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
@@ -34,7 +33,7 @@ const Chessboard = () => {
         const moves = game.moves({ verbose: true });
         if (moves.length > 0) {
           const move = moves[Math.floor(Math.random() * moves.length)];
-          wait(2000)
+          wait(2000);
           handleMove(move.from, move.to);
         }
       } catch (error) {
@@ -63,10 +62,8 @@ const Chessboard = () => {
           setGameStatus('playing');
         }
 
-        // Announce the move
         playMoveSpeech(from, to);
   
-        // Handle captured pieces
         if (move.captured) {
           const capturedPiece = move.captured;
           const capturedColor = move.color === 'w' ? 'b' : 'w';
@@ -78,7 +75,6 @@ const Chessboard = () => {
           const color = capturedColor === 'w' ? "White" : "Black";
           const pieceName = getPieceName(capturedPiece);
           
-          // Show toast with piece image
           toast.success(
             <div className="flex items-center gap-2">
               <img 
@@ -90,11 +86,9 @@ const Chessboard = () => {
             </div>
           );
 
-          const successMessage = `Captured ${color}'s ${pieceName}`;
-          playMoveSpeech("", "", successMessage);
+          playMoveSpeech("", "", `Captured ${color}'s ${pieceName}`);
         }
   
-        // Check game status
         if (newGame.isCheckmate()) {
           playMoveSpeech("","",`Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`);
           setGameStatus('checkmate');
@@ -108,7 +102,6 @@ const Chessboard = () => {
           toast.warning(`Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`);
         }
   
-        // If it was a player move (white), trigger AI move
         if (move.color === 'w' && !newGame.isGameOver()) {
           makeAIMove();
         }
@@ -120,70 +113,14 @@ const Chessboard = () => {
     }
   };
 
-  const renderSquare = (i: number, j: number) => {
-    const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
-    const piece = game.get(position);
-    const isBlack = (i + j) % 2 === 1;
-    
-    return (
-      <SquareComponent key={position} black={isBlack} position={position} onDrop={handleMove}>
-        {piece ? <Piece type={piece.type} color={piece.color} position={position} /> : null}
-      </SquareComponent>
-    );
-  };
-  
-  const renderCapturedPieces = (color: 'w' | 'b') => (
-    <div className="flex flex-wrap gap-1 p-2">
-      {capturedPieces[color].map((piece, i) => (
-        <img 
-          key={i}
-          src={`/${color}${piece}.svg`} 
-          alt={`captured ${piece}`}
-          className="w-6 h-6 opacity-75"
-        />
-      ))}
-    </div>
-  );
-
-  const renderGameStatus = () => {
-    switch (gameStatus) {
-      case 'initial':
-        return (
-          <Alert className="mb-4">
-            <InfoIcon className="h-4 w-4" />
-            <AlertDescription>
-              Welcome! You play as White. Make your first move to start the game.
-            </AlertDescription>
-          </Alert>
-        );
-      case 'checkmate':
-        return (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangleIcon className="h-4 w-4" />
-            <AlertDescription>
-              Game Over - Checkmate! {game.turn() === 'w' ? 'Black' : 'White'} wins!
-            </AlertDescription>
-          </Alert>
-        );
-      case 'draw':
-        return (
-          <Alert className="mb-4">
-            <InfoIcon className="h-4 w-4" />
-            <AlertDescription>
-              Game Over - Draw!
-            </AlertDescription>
-          </Alert>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col items-center gap-8">
         <div className="space-y-4">
-          {renderGameStatus()}
+          <GameStatus 
+            status={gameStatus} 
+            winner={game.turn() === 'w' ? 'b' : 'w'} 
+          />
           
           <div className="flex justify-between items-center mb-4">
             <VoiceInput 
@@ -192,21 +129,19 @@ const Chessboard = () => {
             />
           </div>
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm mb-2">Captured by Black:</div>
-            {renderCapturedPieces('w')}
-          </div>
+          <CapturedPieces 
+            color="w" 
+            pieces={capturedPieces.w} 
+            label="Captured by Black:"
+          />
           
-          <div className="grid grid-cols-8 rounded-lg overflow-hidden shadow-xl">
-            {Array(8).fill(null).map((_, j) => (
-              Array(8).fill(null).map((_, i) => renderSquare(i, j))
-            ))}
-          </div>
+          <BoardGrid game={game} onMove={handleMove} />
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm mb-2">Captured by White:</div>
-            {renderCapturedPieces('b')}
-          </div>
+          <CapturedPieces 
+            color="b" 
+            pieces={capturedPieces.b} 
+            label="Captured by White:"
+          />
         </div>
         
         <div className="w-full max-w-4xl mt-8">
