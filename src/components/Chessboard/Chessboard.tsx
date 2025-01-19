@@ -182,7 +182,7 @@ const Chessboard = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-col md:flex-row items-start gap-8 p-8">
+      <div className="flex flex-col items-center gap-8">
         <div className="space-y-4">
           {renderGameStatus()}
           
@@ -215,7 +215,9 @@ const Chessboard = () => {
           </div>
         </div>
         
-        <MoveHistory moves={moveHistory} />
+        <div className="w-full max-w-4xl mt-8">
+          <MoveHistory moves={moveHistory} />
+        </div>
       </div>
     </DndProvider>
   );
