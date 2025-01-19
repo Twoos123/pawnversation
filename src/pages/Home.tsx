@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,17 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
   const [hoveredPiece, setHoveredPiece] = useState<string | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  // Track mouse position
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   // Generate multiple instances of each piece type for better distribution
   const pieces = [
@@ -24,7 +35,7 @@ const Home = () => {
     'bk',                    // 1 black king
   ];
 
-  // Generate random positions for each piece across the entire viewport
+  // Generate random positions for each piece
   const piecePositions = pieces.map((piece) => ({
     piece,
     left: Math.random() * 80 + 10,     // Random position between 10% and 90% horizontally
@@ -40,55 +51,74 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted overflow-hidden relative">
       {/* Floating Chess Pieces Layer */}
       <div className="fixed inset-0 pointer-events-none">
-        {piecePositions.map(({ piece, left, top, delay, duration, yOffset, scale, rotation }, index) => (
-          <motion.img
-            key={`${piece}-${index}`}
-            src={`/${piece}.svg`}
-            alt={piece}
-            className={`absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20 ${
-              hoveredPiece === `${piece}-${index}` ? 'opacity-100' : ''
-            }`}
-            style={{
-              left: `${left}%`,
-              top: `${top}%`,
-            }}
-            initial={{ 
-              scale: 0,
-              opacity: 0,
-              rotate: -180
-            }}
-            animate={{
-              scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
-              opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
-              y: [yOffset, -yOffset, yOffset],
-              rotate: [rotation, rotation + 5, rotation - 5, rotation],
-            }}
-            transition={{
-              scale: { duration: 0.5, delay },
-              opacity: { duration: 0.5 },
-              y: {
-                duration,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay,
-              },
-              rotate: {
-                duration: duration * 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay,
-              },
-            }}
-            whileHover={{
-              scale: scale * 1.3,
-              opacity: 1,
-              rotate: rotation,
-              transition: { duration: 0.2 }
-            }}
-            onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
-            onHoverEnd={() => setHoveredPiece(null)}
-          />
-        ))}
+        {piecePositions.map(({ piece, left, top, delay, duration, yOffset, scale, rotation }, index) => {
+          // Calculate distance between mouse and piece
+          const pieceX = (window.innerWidth * left) / 100;
+          const pieceY = (window.innerHeight * top) / 100;
+          const dx = mousePosition.x - pieceX;
+          const dy = mousePosition.y - pieceY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          // Calculate repulsion force (stronger when closer)
+          const maxDistance = 200; // Maximum distance for repulsion effect
+          const repulsionForce = Math.max(0, 1 - distance / maxDistance);
+          const repulsionX = dx * repulsionForce * -0.5; // Negative to move away
+          const repulsionY = dy * repulsionForce * -0.5;
+
+          return (
+            <motion.img
+              key={`${piece}-${index}`}
+              src={`/${piece}.svg`}
+              alt={piece}
+              className={`absolute w-8 h-8 md:w-12 md:h-12 dark:invert opacity-20 ${
+                hoveredPiece === `${piece}-${index}` ? 'opacity-100' : ''
+              }`}
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+              }}
+              initial={{ 
+                scale: 0,
+                opacity: 0,
+                rotate: -180
+              }}
+              animate={{
+                scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
+                opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
+                y: [yOffset, -yOffset, yOffset],
+                rotate: [rotation, rotation + 5, rotation - 5, rotation],
+                x: repulsionX,
+                y: repulsionY + yOffset,
+              }}
+              transition={{
+                scale: { duration: 0.5, delay },
+                opacity: { duration: 0.5 },
+                y: {
+                  duration,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay,
+                },
+                rotate: {
+                  duration: duration * 1.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay,
+                },
+                x: { type: "spring", stiffness: 100, damping: 10 },
+                y: { type: "spring", stiffness: 100, damping: 10 },
+              }}
+              whileHover={{
+                scale: scale * 1.3,
+                opacity: 1,
+                rotate: rotation,
+                transition: { duration: 0.2 }
+              }}
+              onHoverStart={() => setHoveredPiece(`${piece}-${index}`)}
+              onHoverEnd={() => setHoveredPiece(null)}
+            />
+          );
+        })}
       </div>
 
       {/* Main Content */}
