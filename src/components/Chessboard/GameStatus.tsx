@@ -16,7 +16,7 @@ const GameStatus = ({ status, winner }: GameStatusProps) => {
       setShowBanner(true);
       const timer = setTimeout(() => {
         setShowBanner(false);
-      }, 4000); // Banner will show for 4 seconds
+      }, 4000);
 
       return () => clearTimeout(timer);
     }
@@ -32,10 +32,10 @@ const GameStatus = ({ status, winner }: GameStatusProps) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -100 }}
               transition={{ duration: 0.5 }}
-              className="fixed top-0 left-0 right-0 z-50"
+              className="fixed inset-0 flex items-center justify-center z-50"
             >
-              <div className="bg-primary/90 backdrop-blur-sm text-primary-foreground py-4 px-6 shadow-lg">
-                <div className="container mx-auto flex items-center justify-center gap-2">
+              <div className="bg-primary/90 backdrop-blur-sm text-primary-foreground py-4 px-6 shadow-lg rounded-lg">
+                <div className="flex items-center justify-center gap-2">
                   <InfoIcon className="h-5 w-5" />
                   <p className="text-lg font-medium">
                     Welcome! You play as White. Make your first move to start the game.
