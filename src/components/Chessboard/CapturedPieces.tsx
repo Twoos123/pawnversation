@@ -1,0 +1,29 @@
+interface CapturedPiecesProps {
+  color: 'w' | 'b';
+  pieces: string[];
+  currentLanguage: string;
+}
+
+const CapturedPieces = ({ color, pieces, currentLanguage }: CapturedPiecesProps) => {
+  return (
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+      <div className="text-sm mb-2">
+        {currentLanguage === 'en' 
+          ? `Captured by ${color === 'w' ? 'White' : 'Black'}:` 
+          : `Capturado por ${color === 'w' ? 'Blanco' : 'Negro'}:`}
+      </div>
+      <div className="flex flex-wrap gap-1 p-2">
+        {pieces.map((piece, i) => (
+          <img 
+            key={i}
+            src={`/${color}${piece}.svg`} 
+            alt={`captured ${piece}`}
+            className="w-6 h-6 opacity-75"
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default CapturedPieces;
