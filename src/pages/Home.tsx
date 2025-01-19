@@ -8,17 +8,73 @@ const Home = () => {
   const navigate = useNavigate();
   const [hoveredPiece, setHoveredPiece] = useState<string | null>(null);
 
-  // Generate random positions for each piece
-  const piecePositions = ['wp', 'wn', 'wb', 'wq', 'wk'].map((piece) => ({
+  // Generate random positions for each piece across the entire viewport
+  const piecePositions = ['wp', 'wn', 'wb', 'wq', 'wk', 'bp', 'bn', 'bb', 'bq', 'bk'].map((piece) => ({
     piece,
-    left: Math.random() * 60 + 10, // Random position between 10% and 70%
-    delay: Math.random() * 0.5, // Random delay for animations
+    left: Math.random() * 80 + 10, // Random position between 10% and 90% horizontally
+    top: Math.random() * 70 + 15,  // Random position between 15% and 85% vertically
+    delay: Math.random() * 0.8,    // Random delay for animations
+    duration: 3 + Math.random() * 2, // Random duration between 3-5s
+    yOffset: Math.random() * 40 - 20, // Random Y offset for floating
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-12 md:py-20">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted overflow-hidden relative">
+      {/* Floating Chess Pieces Layer */}
+      <div className="fixed inset-0 pointer-events-none">
+        {piecePositions.map(({ piece, left, top, delay, duration, yOffset }) => (
+          <motion.img
+            key={piece}
+            src={`/${piece}.svg`}
+            alt={piece}
+            className={`absolute w-12 h-12 md:w-16 md:h-16 dark:invert opacity-20 ${
+              hoveredPiece === piece ? 'opacity-100' : ''
+            }`}
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+            }}
+            initial={{ 
+              scale: 0,
+              opacity: 0,
+              rotate: -180
+            }}
+            animate={{
+              scale: 1,
+              opacity: hoveredPiece === piece ? 1 : 0.2,
+              y: [yOffset, -yOffset, yOffset],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{
+              scale: { duration: 0.5, delay },
+              opacity: { duration: 0.5 },
+              y: {
+                duration,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay,
+              },
+              rotate: {
+                duration: duration * 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay,
+              },
+            }}
+            whileHover={{
+              scale: 1.3,
+              opacity: 1,
+              rotate: 0,
+              transition: { duration: 0.2 }
+            }}
+            onHoverStart={() => setHoveredPiece(piece)}
+            onHoverEnd={() => setHoveredPiece(null)}
+          />
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,60 +115,6 @@ const Home = () => {
               </Button>
             </motion.div>
           </div>
-        </motion.div>
-
-        {/* Floating Chess Pieces */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="relative h-40 mb-12 max-w-2xl mx-auto overflow-hidden"
-        >
-          {piecePositions.map(({ piece, left, delay }) => (
-            <motion.img
-              key={piece}
-              src={`/${piece}.svg`}
-              alt={piece}
-              className={`absolute w-16 h-16 dark:invert cursor-pointer transition-all duration-300 ${
-                hoveredPiece === piece ? 'scale-125 rotate-12' : ''
-              }`}
-              style={{
-                left: `${left}%`,
-                top: '50%',
-              }}
-              initial={{ y: -100, opacity: 0 }}
-              animate={{
-                y: [-20, 20, -20],
-                rotate: [0, 5, -5, 0],
-                opacity: 1,
-              }}
-              transition={{
-                y: {
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay,
-                },
-                rotate: {
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay,
-                },
-                opacity: {
-                  duration: 0.5,
-                  delay,
-                },
-              }}
-              whileHover={{
-                scale: 1.2,
-                rotate: 12,
-                transition: { duration: 0.2 }
-              }}
-              onHoverStart={() => setHoveredPiece(piece)}
-              onHoverEnd={() => setHoveredPiece(null)}
-            />
-          ))}
         </motion.div>
 
         {/* Features Grid */}
@@ -159,6 +161,7 @@ const Home = () => {
             </motion.div>
           ))}
         </motion.div>
+
       </div>
 
       {/* Theme Toggle */}
