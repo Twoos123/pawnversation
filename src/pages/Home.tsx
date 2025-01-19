@@ -50,14 +50,26 @@ const Home = () => {
             initial={{ 
               scale: 0,
               opacity: 0,
-              rotate: -180
+              rotate: -180,
+              x: `${Math.random() * 100}vw`,  // Random starting X position
+              y: `${Math.random() * 100}vh`,  // Random starting Y position
             }}
             animate={{
               scale: hoveredPiece === `${piece}-${index}` ? scale * 1.2 : scale,
               opacity: hoveredPiece === `${piece}-${index}` ? 1 : 0.2,
               rotate: [rotation, rotation + 10, rotation - 10, rotation],
-              x: [0, 100, -100, 0],
-              y: [0, -50, 50, 0],
+              x: [
+                `${Math.random() * 80 + 10}vw`,
+                `${Math.random() * 80 + 10}vw`,
+                `${Math.random() * 80 + 10}vw`,
+                `${Math.random() * 80 + 10}vw`
+              ],
+              y: [
+                `${Math.random() * 70 + 15}vh`,
+                `${Math.random() * 70 + 15}vh`,
+                `${Math.random() * 70 + 15}vh`,
+                `${Math.random() * 70 + 15}vh`
+              ],
             }}
             transition={{
               scale: { 
@@ -79,7 +91,7 @@ const Home = () => {
                 duration: duration,
                 repeat: Infinity,
                 ease: "easeInOut",
-                times: [0, 0.25, 0.75, 1]
+                times: [0, 0.33, 0.66, 1]
               },
               y: {
                 duration: duration * 1.2,
