@@ -12,6 +12,8 @@ import { wait } from '@/utils/timeUtils';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon, AlertTriangleIcon } from "lucide-react";
 import { getPieceName } from '@/utils/chessPieceUtils';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { translateText } from '@/utils/translationUtils';
 
 const Chessboard = () => {
   const [game, setGame] = useState(new Chess());
@@ -19,6 +21,13 @@ const Chessboard = () => {
   const [capturedPieces, setCapturedPieces] = useState({ w: [], b: [] });
   const [isThinking, setIsThinking] = useState(false);
   const [gameStatus, setGameStatus] = useState<'initial' | 'playing' | 'checkmate' | 'draw'>('initial');
+  const { currentLanguage } = useLanguage();
+
+  const announceMessage = async (message: string) => {
+    const translatedMessage = await translateText(message, currentLanguage);
+    playMoveSpeech("", "", translatedMessage);
+    return translatedMessage;
+  };
 
   const handleVoiceMove = (from: string, to: string) => {
     console.log("Voice move received:", from, "to", to);
@@ -29,25 +38,25 @@ const Chessboard = () => {
     setIsThinking(true);
     console.log("AI is thinking...");
   
-    // Simulate AI thinking delay
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const moves = game.moves({ verbose: true });
         if (moves.length > 0) {
           const move = moves[Math.floor(Math.random() * moves.length)];
-          wait(2000)
+          await wait(2000);
           handleMove(move.from, move.to);
         }
       } catch (error) {
         console.error("AI move error:", error);
-        toast.error("AI encountered an error.");
+        const message = await announceMessage("AI encountered an error");
+        toast.error(message);
       } finally {
         setIsThinking(false);
       }
     }, 500);
   };
 
-  const handleMove = (from: string, to: string) => {
+  const handleMove = async (from: string, to: string) => {
     try {
       const move = game.move({
         from: from as Square,
@@ -65,7 +74,7 @@ const Chessboard = () => {
         }
 
         // Announce the move
-        playMoveSpeech(from, to);
+        await announceMessage(`${from} to ${to}`);
   
         // Handle captured pieces
         if (move.captured) {
@@ -79,6 +88,8 @@ const Chessboard = () => {
           const color = capturedColor === 'w' ? "White" : "Black";
           const pieceName = getPieceName(capturedPiece);
           
+          const successMessage = await translateText(`Captured ${color}'s ${pieceName}`, currentLanguage);
+          
           // Show toast with piece image
           toast.success(
             <div className="flex items-center gap-2">
@@ -87,26 +98,34 @@ const Chessboard = () => {
                 alt={`${color} ${pieceName}`}
                 className="w-5 h-5"
               />
-              <span>Captured {color}'s {pieceName}</span>
+              <span>{successMessage}</span>
             </div>
           );
 
-          const successMessage = `Captured ${color}'s ${pieceName}`;
-          playMoveSpeech("", "", successMessage);
+          await announceMessage(successMessage);
         }
   
         // Check game status
         if (newGame.isCheckmate()) {
-          playMoveSpeech("","",`Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`);
+          const message = await translateText(
+            `Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`,
+            currentLanguage
+          );
+          await announceMessage(message);
           setGameStatus('checkmate');
-          toast.success(`Checkmate! ${move.color === 'w' ? 'White' : 'Black'} wins!`);
+          toast.success(message);
         } else if (newGame.isDraw()) {
-          playMoveSpeech("","","Game over. It's a draw");
+          const message = await translateText("Game over. It's a draw", currentLanguage);
+          await announceMessage(message);
           setGameStatus('draw');
-          toast.info("Game Over - Draw!");
+          toast.info(message);
         } else if (newGame.isCheck()) {
-          playMoveSpeech("","",`Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`);
-          toast.warning(`Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`);
+          const message = await translateText(
+            `Check! ${move.color === 'b' ? 'White' : 'Black'}'s King is threatened!`,
+            currentLanguage
+          );
+          await announceMessage(message);
+          toast.warning(message);
         }
   
         // If it was a player move (white), trigger AI move
@@ -116,8 +135,9 @@ const Chessboard = () => {
       }
     } catch (error) {
       console.error("Move error:", error);
-      playMoveSpeech("","","This was an invalid move");
-      toast.error("Invalid move!");
+      const message = await translateText("Invalid move!", currentLanguage);
+      await announceMessage(message);
+      toast.error(message);
     }
   };
 
@@ -189,7 +209,7 @@ const Chessboard = () => {
           <div className="flex justify-between items-center mb-4">
             {isThinking && (
               <div className="text-center text-gray-600 animate-pulse">
-                AI is thinking...
+                {currentLanguage === 'en' ? 'AI is thinking...' : 'AI está pensando...'}
               </div>
             )}
             <VoiceInput 
@@ -199,7 +219,9 @@ const Chessboard = () => {
           </div>
           
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm mb-2">Captured by Black:</div>
+            <div className="text-sm mb-2">
+              {currentLanguage === 'en' ? 'Captured by Black:' : 'Capturado por Negro:'}
+            </div>
             {renderCapturedPieces('w')}
           </div>
           
@@ -210,7 +232,9 @@ const Chessboard = () => {
           </div>
           
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm mb-2">Captured by White:</div>
+            <div className="text-sm mb-2">
+              {currentLanguage === 'en' ? 'Captured by White:' : 'Capturado por Blanco:'}
+            </div>
             {renderCapturedPieces('b')}
           </div>
         </div>
