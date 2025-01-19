@@ -22,51 +22,61 @@ const GameStatus = ({ status, winner }: GameStatusProps) => {
     }
   }, [status]);
 
-  switch (status) {
-    case 'initial':
-      return (
-        <AnimatePresence>
-          {showBanner && (
-            <motion.div
-              initial={{ opacity: 0, y: -100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -100 }}
-              transition={{ duration: 0.5 }}
-              className="fixed inset-0 flex items-center justify-center z-50"
-            >
-              <div className="bg-primary/90 backdrop-blur-sm text-primary-foreground py-4 px-6 shadow-lg rounded-lg">
-                <div className="flex items-center justify-center gap-2">
-                  <InfoIcon className="h-5 w-5" />
-                  <p className="text-lg font-medium">
-                    Welcome! You play as White. Make your first move to start the game.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      );
-    case 'checkmate':
-      return (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTriangleIcon className="h-4 w-4" />
-          <AlertDescription>
-            Game Over - Checkmate! {winner === 'w' ? 'White' : 'Black'} wins!
-          </AlertDescription>
-        </Alert>
-      );
-    case 'draw':
-      return (
-        <Alert className="mb-4">
-          <InfoIcon className="h-4 w-4" />
-          <AlertDescription>
-            Game Over - Draw!
-          </AlertDescription>
-        </Alert>
-      );
-    default:
-      return null;
-  }
+  const renderBanner = () => {
+    switch (status) {
+      case 'initial':
+        return (
+          <div className="bg-primary/90 backdrop-blur-sm text-primary-foreground py-4 px-6 shadow-lg rounded-lg">
+            <div className="flex items-center justify-center gap-2">
+              <InfoIcon className="h-5 w-5" />
+              <p className="text-lg font-medium">
+                Welcome! You play as White. Make your first move to start the game.
+              </p>
+            </div>
+          </div>
+        );
+      case 'checkmate':
+        return (
+          <div className="bg-destructive/90 backdrop-blur-sm text-destructive-foreground py-4 px-6 shadow-lg rounded-lg">
+            <div className="flex items-center justify-center gap-2">
+              <AlertTriangleIcon className="h-5 w-5" />
+              <p className="text-lg font-medium">
+                Checkmate! {winner === 'w' ? 'White' : 'Black'} wins!
+              </p>
+            </div>
+          </div>
+        );
+      case 'draw':
+        return (
+          <div className="bg-muted/90 backdrop-blur-sm text-muted-foreground py-4 px-6 shadow-lg rounded-lg">
+            <div className="flex items-center justify-center gap-2">
+              <InfoIcon className="h-5 w-5" />
+              <p className="text-lg font-medium">
+                Game Over - Draw!
+              </p>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {(showBanner || status === 'checkmate' || status === 'draw') && (
+        <motion.div
+          initial={{ opacity: 0, y: -100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -100 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 flex items-center justify-center z-50"
+        >
+          {renderBanner()}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 };
 
 export default GameStatus;
