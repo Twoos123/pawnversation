@@ -1,6 +1,8 @@
 # PawnVersation
 
-A voice-controlled chess game powered by Groq.
+PawnVersation is an innovative chess game designed for inclusivity, enabling players to move chess pieces using voice commands in addition to existing traditional methods (drag-n-drop and touch). By leveraging modern web technologies, we aim to make chess accessible to everyone, including individuals with physical disabilities. Currently, chess lacks representation from groups such as the blind or those without means to physically interact with chess, and this project seeks to bridge that gap.
+
+We're using Groq to power our speech to text conversion, which in turn results in automated movement of chess pieces. Pair this with a serene UI and highly portable software, we present the chess for everyone (literally!!).
 
 ## Project info
 
