@@ -67,7 +67,7 @@ const Game = () => {
           <PopoverContent className="w-auto p-4">
             <div className="flex flex-col items-center gap-2">
               <img 
-                src="/qr-code.png" 
+                src="/QR.png" 
                 alt="QR Code to share game" 
                 className="w-48 h-48"
               />
