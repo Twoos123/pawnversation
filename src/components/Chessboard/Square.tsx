@@ -1,5 +1,6 @@
 import { useDrop } from 'react-dnd';
 import { cn } from "@/lib/utils";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SquareProps {
   children?: React.ReactNode;
@@ -9,6 +10,7 @@ interface SquareProps {
 }
 
 const Square = ({ black, children, position, onDrop }: SquareProps) => {
+  const isMobile = useIsMobile();
   const [{ isOver }, drop] = useDrop({
     accept: 'piece',
     drop: (item: { position: string }) => {
@@ -19,11 +21,8 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
     }),
   });
 
-  // Get file (a-h) and rank (1-8) from position
   const file = position[0];
   const rank = position[1];
-
-  // Determine if this square is on the edge of the board
   const isBottomEdge = rank === '1';
   const isLeftEdge = file === 'a';
 
@@ -32,7 +31,8 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
       <div
         ref={drop}
         className={cn(
-          'w-16 h-16 flex items-center justify-center relative',
+          'flex items-center justify-center relative',
+          isMobile ? 'w-10 h-10' : 'w-16 h-16',
           black ? 'bg-[#B58863]' : 'bg-[#F0D9B5]',
           isOver && 'opacity-75 scale-105',
           'transition-all duration-200 ease-in-out'
@@ -46,16 +46,22 @@ const Square = ({ black, children, position, onDrop }: SquareProps) => {
           {children}
         </div>
         
-        {/* File label (a-h) on bottom edge */}
         {isBottomEdge && (
-          <div className="absolute bottom-1 right-1 text-xs text-gray-600 font-medium">
+          <div className={cn(
+            "absolute bottom-1 right-1 font-medium",
+            isMobile ? "text-[10px]" : "text-xs",
+            "text-gray-600"
+          )}>
             {file}
           </div>
         )}
         
-        {/* Rank label (1-8) on left edge */}
         {isLeftEdge && (
-          <div className="absolute top-1 left-1 text-xs text-gray-600 font-medium">
+          <div className={cn(
+            "absolute top-1 left-1 font-medium",
+            isMobile ? "text-[10px]" : "text-xs",
+            "text-gray-600"
+          )}>
             {rank}
           </div>
         )}

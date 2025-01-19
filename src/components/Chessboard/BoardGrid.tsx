@@ -1,6 +1,7 @@
 import { Chess, Square } from 'chess.js';
 import SquareComponent from './Square';
 import Piece from './Piece';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BoardGridProps {
   game: Chess;
@@ -8,6 +9,8 @@ interface BoardGridProps {
 }
 
 const BoardGrid = ({ game, onMove }: BoardGridProps) => {
+  const isMobile = useIsMobile();
+  
   const renderSquare = (i: number, j: number) => {
     const position = `${String.fromCharCode(97 + i)}${8 - j}` as Square;
     const piece = game.get(position);
@@ -21,7 +24,7 @@ const BoardGrid = ({ game, onMove }: BoardGridProps) => {
   };
 
   return (
-    <div className="grid grid-cols-8 rounded-lg overflow-hidden shadow-xl">
+    <div className={`grid grid-cols-8 rounded-lg overflow-hidden shadow-xl ${isMobile ? 'w-[320px]' : 'w-[512px]'}`}>
       {Array(8).fill(null).map((_, j) => (
         Array(8).fill(null).map((_, i) => renderSquare(i, j))
       ))}

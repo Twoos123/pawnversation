@@ -1,5 +1,6 @@
 import { useDrag } from 'react-dnd';
 import { cn } from "@/lib/utils";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PieceProps {
   type: string;
@@ -8,6 +9,7 @@ interface PieceProps {
 }
 
 const Piece = ({ type, color, position }: PieceProps) => {
+  const isMobile = useIsMobile();
   const [{ isDragging }, drag] = useDrag({
     type: 'piece',
     item: { position },
@@ -22,7 +24,8 @@ const Piece = ({ type, color, position }: PieceProps) => {
     <div
       ref={drag}
       className={cn(
-        'w-14 h-14 cursor-grab active:cursor-grabbing',
+        'cursor-grab active:cursor-grabbing',
+        isMobile ? 'w-8 h-8' : 'w-14 h-14',
         'transition-all duration-300 ease-in-out transform',
         'hover:scale-105',
         isDragging ? 'opacity-50 scale-95' : 'opacity-100',
